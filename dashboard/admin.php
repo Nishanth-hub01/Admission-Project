@@ -12,22 +12,22 @@ $totalStudents = $conn->query("SELECT COUNT(*) as count FROM students")->fetch_a
 $totalUsers = $conn->query("SELECT COUNT(*) as count FROM users")->fetch_assoc()['count'];
 $totalPayments = $conn->query("SELECT SUM(paid_amount) as total FROM payments WHERE payment_status = 'Paid'")->fetch_assoc()['total'] ?? 0;
 $pendingPayments = $conn->query("SELECT SUM(total_fee - paid_amount) as total FROM payments WHERE payment_status = 'Pending'")->fetch_assoc()['total'] ?? 0;
-$totalApproved = $conn->query("SELECT COUNT(*) as count FROM students WHERE department IS NOT NULL")->fetch_assoc()['count'];
+$totalApproved = $conn->query("SELECT COUNT(*) as count FROM students WHERE course_department IS NOT NULL")->fetch_assoc()['count'];
 $totalPending = $totalStudents - $totalApproved;
 
 // Get data for Department Chart
 $departmentData = $conn->query("
-    SELECT department, COUNT(*) as count 
+    SELECT course_department, COUNT(*) as count 
     FROM students 
-    WHERE department IS NOT NULL
-    GROUP BY department 
+    WHERE course_department IS NOT NULL
+    GROUP BY course_department 
     ORDER BY count DESC
 ");
 
 $departments = [];
 $departmentCounts = [];
 while ($row = $departmentData->fetch_assoc()) {
-    $departments[] = $row['department'];
+    $departments[] = $row['course_department'];
     $departmentCounts[] = $row['count'];
 }
 
@@ -127,6 +127,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_user'])) {
     }
 }
 
+// Calculate collection rate safely
+$totalFees = $totalPayments + $pendingPayments;
+$collectionRate = ($totalFees > 0) ? round(($totalPayments / $totalFees) * 100, 1) : 0;
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -195,6 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_user'])) {
             <li style="border-bottom: 1px solid rgba(255,255,255,0.05);"><a href="admin.php" style="display: block; padding: 12px 20px; color: #ecf0f1; text-decoration: none;"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
             <li style="border-bottom: 1px solid rgba(255,255,255,0.05);"><a href="#statistics-charts" style="display: block; padding: 12px 20px; color: #ecf0f1; text-decoration: none;"><i class="fas fa-chart-bar"></i> Statistics & Charts</a></li>
             <li style="border-bottom: 1px solid rgba(255,255,255,0.05);"><a href="#users-section" style="display: block; padding: 12px 20px; color: #ecf0f1; text-decoration: none;"><i class="fas fa-users"></i> Manage Users</a></li>
+            <li style="border-bottom: 1px solid rgba(255,255,255,0.05);"><a href="counselor_dashboard.php" style="display: block; padding: 12px 20px; color: #ecf0f1; text-decoration: none;"><i class="fas fa-graduation-cap"></i> Counselor Dashboard</a></li>
             <li style="border-bottom: 1px solid rgba(255,255,255,0.05);"><a href="../actions/logout.php" style="display: block; padding: 12px 20px; color: #ecf0f1; text-decoration: none;"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
     </div>
@@ -243,7 +248,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_user'])) {
                     </div>
                     <h5 style="color: #3498db; margin: 0 0 10px 0; font-weight: 600;"><i class="fas fa-check"></i> Approved</h5>
                     <div style="font-size: 2.5rem; font-weight: bold; color: #333;"><?php echo $totalApproved; ?></div>
-                    <small style="color: #999;"><?php echo round(($totalApproved/$totalStudents)*100, 1); ?>% of total</small>
+                    <small style="color: #999;"><?php echo $totalStudents > 0 ? round(($totalApproved/$totalStudents)*100, 1) : 0; ?>% of total</small>
                 </div>
             </div>
 
@@ -346,12 +351,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_user'])) {
 
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px;">
                             <span style="color: #666; font-weight: 600;"><i class="fas fa-money-bill"></i> Total Fees:</span>
-                            <span style="font-size: 1.5rem; color: #3498db; font-weight: bold;">₹<?php echo number_format($totalPayments + $pendingPayments, 0); ?></span>
+                            <span style="font-size: 1.5rem; color: #3498db; font-weight: bold;">₹<?php echo number_format($totalFees, 0); ?></span>
                         </div>
 
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
                             <span style="color: #666; font-weight: 600;"><i class="fas fa-percentage"></i> Collection Rate:</span>
-                            <span style="font-size: 1.5rem; color: #667eea; font-weight: bold;"><?php echo round(($totalPayments / ($totalPayments + $pendingPayments)) * 100, 1); ?>%</span>
+                            <span style="font-size: 1.5rem; color: #667eea; font-weight: bold;"><?php echo $collectionRate; ?>%</span>
                         </div>
                     </div>
                 </div>
@@ -519,144 +524,164 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_user'])) {
     };
 
     // Chart 1: Department-wise Distribution
-    const departmentCtx = document.getElementById('departmentChart').getContext('2d');
-    const departmentChart = new Chart(departmentCtx, {
-        type: 'doughnut',
-        data: {
-            labels: <?php echo json_encode($departments); ?>,
-            datasets: [{
-                data: <?php echo json_encode($departmentCounts); ?>,
-                backgroundColor: [
-                    '#667eea',
-                    '#764ba2',
-                    '#f39c12',
-                    '#e74c3c',
-                    '#3498db',
-                    '#2ecc71',
-                    '#9b59b6'
-                ],
-                borderColor: 'white',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 20,
-                        font: { size: 12, weight: 'bold' }
+    const departments = <?php echo json_encode($departments); ?>;
+    const departmentCounts = <?php echo json_encode($departmentCounts); ?>;
+
+    if (departments.length > 0) {
+        const departmentCtx = document.getElementById('departmentChart').getContext('2d');
+        const departmentChart = new Chart(departmentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: departments,
+                datasets: [{
+                    data: departmentCounts,
+                    backgroundColor: [
+                        '#667eea',
+                        '#764ba2',
+                        '#f39c12',
+                        '#e74c3c',
+                        '#3498db',
+                        '#2ecc71',
+                        '#9b59b6'
+                    ],
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: { size: 12, weight: 'bold' }
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 
     // Chart 2: Payment Status Distribution
-    const paymentStatusCtx = document.getElementById('paymentStatusChart').getContext('2d');
-    const paymentStatusChart = new Chart(paymentStatusCtx, {
-        type: 'pie',
-        data: {
-            labels: <?php echo json_encode($paymentLabels); ?>,
-            datasets: [{
-                data: <?php echo json_encode($paymentCounts); ?>,
-                backgroundColor: [
-                    '#2ecc71',
-                    '#e74c3c'
-                ],
-                borderColor: 'white',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 20,
-                        font: { size: 12, weight: 'bold' }
+    const paymentLabels = <?php echo json_encode($paymentLabels); ?>;
+    const paymentCounts = <?php echo json_encode($paymentCounts); ?>;
+
+    if (paymentLabels.length > 0) {
+        const paymentStatusCtx = document.getElementById('paymentStatusChart').getContext('2d');
+        const paymentStatusChart = new Chart(paymentStatusCtx, {
+            type: 'pie',
+            data: {
+                labels: paymentLabels,
+                datasets: [{
+                    data: paymentCounts,
+                    backgroundColor: [
+                        '#2ecc71',
+                        '#e74c3c'
+                    ],
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: { size: 12, weight: 'bold' }
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 
     // Chart 3: Monthly Applications
-    const monthlyCtx = document.getElementById('monthlyApplicationsChart').getContext('2d');
-    const monthlyChart = new Chart(monthlyCtx, {
-        type: 'line',
-        data: {
-            labels: <?php echo json_encode($months); ?>,
-            datasets: [{
-                label: 'Applications',
-                data: <?php echo json_encode($monthlyCounts); ?>,
-                borderColor: '#667eea',
-                backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: '#667eea',
-                pointBorderColor: 'white',
-                pointBorderWidth: 2,
-                pointRadius: 6,
-                pointHoverRadius: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    labels: { font: { size: 12, weight: 'bold' } }
-                }
+    const months = <?php echo json_encode($months); ?>;
+    const monthlyCounts = <?php echo json_encode($monthlyCounts); ?>;
+
+    if (months.length > 0) {
+        const monthlyCtx = document.getElementById('monthlyApplicationsChart').getContext('2d');
+        const monthlyChart = new Chart(monthlyCtx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Applications',
+                    data: monthlyCounts,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#667eea',
+                    pointBorderColor: 'white',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: { color: 'rgba(0, 0, 0, 0.05)' }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: { font: { size: 12, weight: 'bold' } }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    }
                 }
             }
-        }
-    });
+        });
+    }
 
     // Chart 4: Monthly Payment Collection
-    const paymentCtx = document.getElementById('paymentCollectionChart').getContext('2d');
-    const paymentChart = new Chart(paymentCtx, {
-        type: 'bar',
-        data: {
-            labels: <?php echo json_encode($paymentMonths); ?>,
-            datasets: [{
-                label: 'Amount Collected (₹)',
-                data: <?php echo json_encode($paymentAmounts); ?>,
-                backgroundColor: '#f39c12',
-                borderColor: '#e67e22',
-                borderWidth: 2,
-                borderRadius: 5,
-                hoverBackgroundColor: '#e67e22'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    labels: { font: { size: 12, weight: 'bold' } }
-                }
+    const paymentMonths = <?php echo json_encode($paymentMonths); ?>;
+    const paymentAmounts = <?php echo json_encode($paymentAmounts); ?>;
+
+    if (paymentMonths.length > 0) {
+        const paymentCtx = document.getElementById('paymentCollectionChart').getContext('2d');
+        const paymentChart = new Chart(paymentCtx, {
+            type: 'bar',
+            data: {
+                labels: paymentMonths,
+                datasets: [{
+                    label: 'Amount Collected (₹)',
+                    data: paymentAmounts,
+                    backgroundColor: '#f39c12',
+                    borderColor: '#e67e22',
+                    borderWidth: 2,
+                    borderRadius: 5,
+                    hoverBackgroundColor: '#e67e22'
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: { color: 'rgba(0, 0, 0, 0.05)' }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: { font: { size: 12, weight: 'bold' } }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    }
                 }
             }
-        }
-    });
+        });
+    }
 
     // Chart 5: Application Status
     const approvalStatusCtx = document.getElementById('approvalStatusChart').getContext('2d');
