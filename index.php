@@ -223,6 +223,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             color: #667eea;
             font-weight: 600;
         }
+        #logo{
+            border-radius:50%;
+            background-size:center;
+            
+        }
     </style>
 </head>
 <body>
@@ -230,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <!-- LOGIN HEADER -->
         <div class="login-header">
             <div class="icon-box">
-                <i class="fas fa-graduation-cap"></i>
+                <img id=logo src="sec logo.jpg">
             </div>
             <h1>Admission Portal</h1>
             <p>College Admission Management System</p>
@@ -316,14 +321,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </button>
         </form>
 
-        <!-- DEMO CREDENTIALS -->
-        <div class="demo-credentials">
-            <h6><i class="fas fa-info-circle"></i> Demo Credentials</h6>
-            <p><strong>For All Roles:</strong></p>
-            <p>Username: <code>admin</code> (Admin) | <code>support1</code> (Support) | <code>counselor1</code> (Counselor)</p>
-            <p>Password: <code>password</code></p>
-        </div>
-    </div>
+      
 
     <!-- BOOTSTRAP JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
