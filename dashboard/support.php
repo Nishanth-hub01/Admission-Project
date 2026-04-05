@@ -52,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_student'])) {
     $community = $conn->real_escape_string($_POST['community']);
     $aadhaar_number = $conn->real_escape_string($_POST['aadhaar_number'] ?? '');
     $blood_group = $conn->real_escape_string($_POST['blood_group'] ?? '');
+    $first_graduate = $conn->real_escape_string($_POST['first_graduate'] ?? '');
     
     // Contact Details
     $mobile_number = $conn->real_escape_string($_POST['mobile_number']);
@@ -82,7 +83,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_student'])) {
     $class_12_board = $conn->real_escape_string($_POST['class_12_board'] ?? 'State Board');
     $class_12_register_number = $conn->real_escape_string($_POST['class_12_register_number'] ?? '');
     $class_12_percentage = !empty($_POST['class_12_percentage']) ? (float)$_POST['class_12_percentage'] : 0;
+    $class_12_subject_1_marks = isset($_POST['class_12_subject_1_marks']) && $_POST['class_12_subject_1_marks'] !== '' ? (float)$_POST['class_12_subject_1_marks'] : null;
+    $class_12_subject_2_marks = isset($_POST['class_12_subject_2_marks']) && $_POST['class_12_subject_2_marks'] !== '' ? (float)$_POST['class_12_subject_2_marks'] : null;
+    $class_12_subject_3_marks = isset($_POST['class_12_subject_3_marks']) && $_POST['class_12_subject_3_marks'] !== '' ? (float)$_POST['class_12_subject_3_marks'] : null;
+    $class_12_subject_4_marks = isset($_POST['class_12_subject_4_marks']) && $_POST['class_12_subject_4_marks'] !== '' ? (float)$_POST['class_12_subject_4_marks'] : null;
+    $class_12_subject_5_marks = isset($_POST['class_12_subject_5_marks']) && $_POST['class_12_subject_5_marks'] !== '' ? (float)$_POST['class_12_subject_5_marks'] : null;
     $class_12_subjects = $conn->real_escape_string($_POST['class_12_subjects'] ?? '');
+
+    $subjectMarks = array_filter([
+        $class_12_subject_1_marks,
+        $class_12_subject_2_marks,
+        $class_12_subject_3_marks,
+        $class_12_subject_4_marks,
+        $class_12_subject_5_marks
+    ], function($mark) {
+        return $mark !== null;
+    });
+
+    if (count($subjectMarks) > 0) {
+        $class_12_percentage = round(array_sum($subjectMarks) / count($subjectMarks), 2);
+    }
+
+    $class_12_subject_1_marks_sql = $class_12_subject_1_marks !== null ? $class_12_subject_1_marks : 'NULL';
+    $class_12_subject_2_marks_sql = $class_12_subject_2_marks !== null ? $class_12_subject_2_marks : 'NULL';
+    $class_12_subject_3_marks_sql = $class_12_subject_3_marks !== null ? $class_12_subject_3_marks : 'NULL';
+    $class_12_subject_4_marks_sql = $class_12_subject_4_marks !== null ? $class_12_subject_4_marks : 'NULL';
+    $class_12_subject_5_marks_sql = $class_12_subject_5_marks !== null ? $class_12_subject_5_marks : 'NULL';
     
     // Entrance Exam
     $entrance_exam_type = $conn->real_escape_string($_POST['entrance_exam_type'] ?? '');
@@ -93,7 +119,54 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_student'])) {
     $course_department = $conn->real_escape_string($_POST['course_department'] ?? '');
     $preferred_specialization = $conn->real_escape_string($_POST['preferred_specialization'] ?? '');
     $admission_type = $conn->real_escape_string($_POST['admission_type'] ?? 'Merit');
-    
+
+    // Programme Choices
+    $programme_choice = '';
+    if (!empty($_POST['programme_choice']) && is_array($_POST['programme_choice'])) {
+        $programme_values = [];
+        foreach ($_POST['programme_choice'] as $choice) {
+            $programme_values[] = $conn->real_escape_string(trim($choice));
+        }
+        $programme_choice = implode(', ', $programme_values);
+    }
+    if (empty($course_department) && !empty($programme_choice)) {
+        $course_department = trim(explode(',', $programme_choice)[0]);
+    }
+
+    // File uploads
+    $passport_photo = '';
+    $class_10_marksheet = '';
+    $class_12_marksheet = '';
+    $first_graduate_certificate = '';
+
+    $uploadDir = realpath(__DIR__ . '/../uploads');
+    if (!$uploadDir) {
+        mkdir(__DIR__ . '/../uploads', 0755, true);
+        $uploadDir = realpath(__DIR__ . '/../uploads');
+    }
+
+    $uploadFields = [
+        'passport_photo',
+        'class_10_marksheet',
+        'class_12_marksheet',
+        'first_graduate_certificate'
+    ];
+
+    foreach ($uploadFields as $field) {
+        if (isset($_FILES[$field]) && $_FILES[$field]['error'] === UPLOAD_ERR_OK) {
+            $filename = basename($_FILES[$field]['name']);
+            $extension = pathinfo($filename, PATHINFO_EXTENSION);
+            $allowed = ['pdf', 'jpg', 'jpeg', 'png'];
+            if (in_array(strtolower($extension), $allowed) && $_FILES[$field]['size'] <= 5 * 1024 * 1024) {
+                $safeName = time() . '_' . preg_replace('/[^A-Za-z0-9_.-]/', '_', $filename);
+                $targetPath = $uploadDir . DIRECTORY_SEPARATOR . $safeName;
+                if (move_uploaded_file($_FILES[$field]['tmp_name'], $targetPath)) {
+                    ${$field} = $conn->real_escape_string($safeName);
+                }
+            }
+        }
+    }
+
     // Bank Details
     $account_holder_name = $conn->real_escape_string($_POST['account_holder_name'] ?? '');
     $bank_name = $conn->real_escape_string($_POST['bank_name'] ?? '');
@@ -122,25 +195,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_student'])) {
             
             // Insert student data
             $sql = "INSERT INTO students (
-                admission_id, full_name, date_of_birth, gender, nationality, religion, community, aadhaar_number, blood_group,
+                admission_id, full_name, date_of_birth, gender, nationality, religion, community, aadhaar_number, blood_group, first_graduate,
                 mobile_number, alternate_mobile, email_id, city, state, pincode, permanent_address, current_address,
                 father_name, mother_name, guardian_name, parent_occupation, parent_mobile, parent_email, annual_family_income,
                 class_10_school, class_10_board, class_10_register_number, class_10_percentage,
-                class_12_school, class_12_board, class_12_register_number, class_12_percentage, class_12_subjects,
+                class_12_school, class_12_board, class_12_register_number, class_12_percentage,
+                class_12_subject_1_marks, class_12_subject_2_marks, class_12_subject_3_marks, class_12_subject_4_marks, class_12_subject_5_marks,
+                class_12_subjects, class_12_marksheet,
+                programme_choice,
                 entrance_exam_type, entrance_exam_score,
                 degree_type, course_department, preferred_specialization, admission_type,
-                account_holder_name, bank_name, account_number, ifsc_code, branch_name,
+                passport_photo, first_graduate_certificate, account_holder_name, bank_name, account_number, ifsc_code, branch_name,
                 hostel_requirement, transport_requirement, scholarship_details, sports_achievements, medical_information,
                 application_status
             ) VALUES (
-                '$admission_id', '$full_name', '$date_of_birth', '$gender', '$nationality', '$religion', '$community', '$aadhaar_number', '$blood_group',
+                '$admission_id', '$full_name', '$date_of_birth', '$gender', '$nationality', '$religion', '$community', '$aadhaar_number', '$blood_group', '$first_graduate',
                 '$mobile_number', '$alternate_mobile', '$email_id', '$city', '$state', '$pincode', '$permanent_address', '$current_address',
                 '$father_name', '$mother_name', '$guardian_name', '$parent_occupation', '$parent_mobile', '$parent_email', $annual_family_income,
                 '$class_10_school', '$class_10_board', '$class_10_register_number', $class_10_percentage,
-                '$class_12_school', '$class_12_board', '$class_12_register_number', $class_12_percentage, '$class_12_subjects',
+                '$class_12_school', '$class_12_board', '$class_12_register_number', $class_12_percentage,
+                $class_12_subject_1_marks_sql, $class_12_subject_2_marks_sql, $class_12_subject_3_marks_sql, $class_12_subject_4_marks_sql, $class_12_subject_5_marks_sql,
+                '$class_12_subjects', '$class_12_marksheet',
+                '$programme_choice',
                 '$entrance_exam_type', $entrance_exam_score,
                 '$degree_type', '$course_department', '$preferred_specialization', '$admission_type',
-                '$account_holder_name', '$bank_name', '$account_number', '$ifsc_code', '$branch_name',
+                '$passport_photo', '$first_graduate_certificate', '$account_holder_name', '$bank_name', '$account_number', '$ifsc_code', '$branch_name',
                 '$hostel_requirement', '$transport_requirement', '$scholarship_details', '$sports_achievements', '$medical_information',
                 'Submitted'
             )";

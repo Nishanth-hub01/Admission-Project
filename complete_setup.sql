@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS `department_fees` (
 -- 2. UPDATE STUDENTS TABLE
 -- ============================================
 ALTER TABLE `students` 
+ADD COLUMN IF NOT EXISTS `first_graduate` ENUM('Yes','No') NULL AFTER `blood_group`,
+ADD COLUMN IF NOT EXISTS `first_graduate_certificate` VARCHAR(255) NULL AFTER `first_graduate`,
 ADD COLUMN IF NOT EXISTS `admission_confirmed_date` TIMESTAMP NULL AFTER `application_status`;
 
 -- Create indexes for better performance

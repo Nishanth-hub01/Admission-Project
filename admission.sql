@@ -29,7 +29,9 @@ CREATE TABLE students (
     community ENUM('General', 'OBC', 'SC', 'ST') DEFAULT 'General',
     aadhaar_number VARCHAR(12) UNIQUE,
     blood_group VARCHAR(5),
+    first_graduate ENUM('Yes','No'),
     passport_photo VARCHAR(255),
+    first_graduate_certificate VARCHAR(255),
     
     -- Contact Details
     mobile_number VARCHAR(15) NOT NULL UNIQUE,
@@ -62,8 +64,14 @@ CREATE TABLE students (
     class_12_board ENUM('State Board', 'CBSE', 'ICSE', 'IB') DEFAULT 'State Board',
     class_12_register_number VARCHAR(50) UNIQUE,
     class_12_percentage DECIMAL(5, 2),
+    class_12_subject_1_marks DECIMAL(5, 2),
+    class_12_subject_2_marks DECIMAL(5, 2),
+    class_12_subject_3_marks DECIMAL(5, 2),
+    class_12_subject_4_marks DECIMAL(5, 2),
+    class_12_subject_5_marks DECIMAL(5, 2),
     class_12_subjects VARCHAR(255),
     class_12_marksheet VARCHAR(255),
+    programme_choice TEXT,
     
     -- Entrance Exam Details
     entrance_exam_type ENUM('JEE Main', 'NEET', 'CUET', 'State CET', 'Other'),
@@ -141,8 +149,8 @@ CREATE TABLE admin_logs (
 
 -- Insert Default Users
 INSERT INTO users (username, password, role) VALUES 
-('admin', '$2y$10$D3e3X5Z6K8L9M2N3O4P5Q6R7S8T9U0V1W2X3Y4Z5A6B7C8D9E0F1G2H', 'Admin'),
-('support1', '$2y$10$D3e3X5Z6K8L9M2N3O4P5Q6R7S8T9U0V1W2X3Y4Z5A6B7C8D9E0F1G2H', 'Support Staff'),
-('counselor1', '$2y$10$D3e3X5Z6K8L9M2N3O4P5Q6R7S8T9U0V1W2X3Y4Z5A6B7C8D9E0F1G2H', 'Counselor'),
-('cashier1', '$2y$10$D3e3X5Z6K8L9M2N3O4P5Q6R7S8T9U0V1W2X3Y4Z5A6B7C8D9E0F1G2H', 'Cashier'),
-('management1', '$2y$10$D3e3X5Z6K8L9M2N3O4P5Q6R7S8T9U0V1W2X3Y4Z5A6B7C8D9E0F1G2H', 'Management');
+('admin', 'admin', 'Admin'),
+('support1', 'support1', 'Support Staff'),
+('counselor1', 'counselor1', 'Counselor'),
+('cashier1', 'cashier1', 'Cashier'),
+('management1', 'management1', 'Management');

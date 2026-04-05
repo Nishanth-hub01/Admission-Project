@@ -1,10 +1,14 @@
 <?php
-// admission-system/dashboard/support_new_register.php
+// admission-system/dashboard/support_register.php
 // Register New Student Component
 ?>
 
-<form method="POST" id="registrationForm">
-    
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="../css/style.css?v=<?php echo time(); ?>">
+
+<form method="POST" id="registrationForm" enctype="multipart/form-data">
+
     <!-- SECTION 1: PERSONAL DETAILS -->
     <div class="section-card">
         <h3 class="section-title"><i class="fas fa-user"></i> 1. Personal Details</h3>
@@ -78,6 +82,28 @@
                     </select>
                 </div>
             </div>
+            <div class="col-md-6">
+                <div class="field-group">
+                    <label class="field-label">First Graduate</label>
+                    <select name="first_graduate" class="form-select">
+                        <option value="">Select</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6" id="first_graduate_certificate_container" style="display: none;">
+                <div class="field-group">
+                    <label class="field-label">First Graduate Certificate</label>
+                    <input type="file" name="first_graduate_certificate" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="field-group">
+                    <label class="field-label">Passport Photo</label>
+                    <input type="file" name="passport_photo" class="form-control" accept="image/*">
+                </div>
+            </div>
         </div>
     </div>
 
@@ -130,7 +156,13 @@
             <div class="col-md-12">
                 <div class="field-group">
                     <label class="field-label">Current Address</label>
-                    <textarea name="current_address" class="form-control" rows="3" placeholder="Enter complete current address"></textarea>
+                    <textarea name="current_address" id="current_address" class="form-control" rows="3" placeholder="Enter complete current address"></textarea>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" id="same_address_checkbox">
+                        <label class="form-check-label" for="same_address_checkbox">
+                            Same as Permanent Address
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -218,6 +250,12 @@
                     <input type="number" step="0.01" name="class_10_percentage" class="form-control" placeholder="0.00">
                 </div>
             </div>
+            <div class="col-md-12">
+                <div class="field-group">
+                    <label class="field-label">Marksheet</label>
+                    <input type="file" name="class_10_marksheet" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                </div>
+            </div>
         </div>
     </div>
 
@@ -250,126 +288,225 @@
             </div>
             <div class="col-md-6">
                 <div class="field-group">
-                    <label class="field-label">Percentage</label>
-                    <input type="number" step="0.01" name="class_12_percentage" class="form-control" placeholder="0.00">
+                    <label class="field-label">Cutoff Percentage (From 200 Marks)</label>
+                    <input type="number" step="0.01" name="class_12_percentage" class="form-control" placeholder="0.00" readonly>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="field-group">
+                    <label class="field-label">Enter 12th Subject Marks</label>
+                    <p class="text-muted" style="font-size: 0.95rem;">Enter marks for Maths (100 marks), Physics (100 marks, converted to 50), and Chemistry (100 marks, converted to 50). Cutoff calculated out of 200 marks only for MPC subjects.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="field-group">
+                    <label class="field-label">Mathematics Marks</label>
+                    <input type="number" step="0.01" min="0" max="100" name="class_12_maths_marks" class="form-control class-12-mark-input" placeholder="0">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="field-group">
+                    <label class="field-label">Physics Marks</label>
+                    <input type="number" step="0.01" min="0" max="100" name="class_12_physics_marks" class="form-control class-12-mark-input" placeholder="0">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="field-group">
+                    <label class="field-label">Chemistry Marks</label>
+                    <input type="number" step="0.01" min="0" max="100" name="class_12_chemistry_marks" class="form-control class-12-mark-input" placeholder="0">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="field-group">
+                    <label class="field-label">Cutoff Mark (Maths + Physics/2 + Chemistry/2) - Out of 200</label>
+                    <input type="number" step="0.01" name="class_12_cutoff_mark" class="form-control" placeholder="0.00" readonly style="font-weight: bold; font-size: 1.1em; color: #2ecc71;">
                 </div>
             </div>
             <div class="col-md-12">
                 <div class="field-group">
                     <label class="field-label">Subjects Studied</label>
-                    <input type="text" name="class_12_subjects" class="form-control" placeholder="e.g., Physics, Chemistry, Mathematics">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SECTION 6: ENTRANCE EXAM -->
-    <div class="section-card">
-        <h3 class="section-title"><i class="fas fa-certificate"></i> 6. Entrance Exam Details</h3>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="field-group">
-                    <label class="field-label">Entrance Exam Type</label>
-                    <select name="entrance_exam_type" class="form-select">
-                        <option value="">Select Exam</option>
-                        <option value="JEE Main">JEE Main</option>
-                        <option value="NEET">NEET</option>
-                        <option value="CUET">CUET</option>
-                        <option value="State CET">State CET</option>
-                        <option value="Other">Other</option>
+                    <select name="class_12_subjects" class="form-select" required>
+                        <option value="">Select Subject Combination</option>
+                        <option value="Mathematics, Physics, Chemistry" selected>Mathematics, Physics, Chemistry</option>
+                        <option value="Mathematics, Biology">Math Biology</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Pure Biology">Pure Biology</option>
                     </select>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="field-group">
-                    <label class="field-label">Entrance Exam Score</label>
-                    <input type="number" step="0.01" name="entrance_exam_score" class="form-control" placeholder="Score obtained">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SECTION 7: COURSE SELECTION -->
-    <div class="section-card">
-        <h3 class="section-title"><i class="fas fa-graduation-cap"></i> 7. Course Selection</h3>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="field-group">
-                    <label class="field-label">Degree Type</label>
-                    <select name="degree_type" class="form-select">
-                        <option value="B.Tech">B.Tech</option>
-                        <option value="B.Sc">B.Sc</option>
-                        <option value="B.Com">B.Com</option>
-                        <option value="B.A">B.A</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="field-group">
-                    <label class="field-label">Course / Department</label>
-                    <input type="text" name="course_department" class="form-control" placeholder="e.g., Computer Science">
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="field-group">
-                    <label class="field-label">Preferred Specialization</label>
-                    <input type="text" name="preferred_specialization" class="form-control" placeholder="e.g., Artificial Intelligence">
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="field-group">
-                    <label class="field-label">Admission Type</label>
-                    <select name="admission_type" class="form-select">
-                        <option value="Merit">Merit</option>
-                        <option value="Management">Management</option>
-                        <option value="Entrance">Entrance</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SECTION 8: BANK DETAILS -->
-    <div class="section-card">
-        <h3 class="section-title"><i class="fas fa-bank"></i> 8. Bank Details</h3>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="field-group">
-                    <label class="field-label">Account Holder Name</label>
-                    <input type="text" name="account_holder_name" class="form-control" placeholder="Account holder name">
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="field-group">
-                    <label class="field-label">Bank Name</label>
-                    <input type="text" name="bank_name" class="form-control" placeholder="Bank name">
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="field-group">
-                    <label class="field-label">Account Number</label>
-                    <input type="text" name="account_number" class="form-control" placeholder="Account number">
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="field-group">
-                    <label class="field-label">IFSC Code</label>
-                    <input type="text" name="ifsc_code" class="form-control" placeholder="IFSC code">
                 </div>
             </div>
             <div class="col-md-12">
                 <div class="field-group">
-                    <label class="field-label">Branch Name</label>
-                    <input type="text" name="branch_name" class="form-control" placeholder="Branch name">
+                    <label class="field-label">Marksheet</label>
+                    <input type="file" name="class_12_marksheet" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SECTION 9: ADDITIONAL INFORMATION -->
+    <!-- SECTION 6: PROGRAMME CHOICE -->
     <div class="section-card">
-        <h3 class="section-title"><i class="fas fa-info-circle"></i> 9. Additional Information</h3>
+        <h3 class="section-title"><i class="fas fa-graduation-cap"></i> 6. Programme Choice</h3>
+
+        <!-- Selection Counter -->
+        <div class="text-center mb-4">
+            <div class="counter-display">
+                <i class="fas fa-check-circle"></i>
+                <span id="selected-count">0</span> programmes selected
+            </div>
+        </div>
+
+        <!-- Programme Categories -->
+        <div class="programme-simple-list">
+
+            <!-- Undergraduate Engineering -->
+            <div class="programme-category">
+                <h5 class="category-title"><i class="fas fa-cogs"></i> Undergraduate Engineering</h5>
+                <div class="category-subtitle">4 Years | B.E/B.Tech Degree</div>
+                <div class="programme-options">
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="B.E (Civil)" id="prog_1" class="programme-checkbox">
+                        <label for="prog_1">B.E (Civil)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="BE (CSE)" id="prog_2" class="programme-checkbox">
+                        <label for="prog_2">BE (CSE)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="BE (CSE-Cyb. Sec.)" id="prog_3" class="programme-checkbox">
+                        <label for="prog_3">BE (CSE-Cyb. Sec.)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="BE (CSE-A & MI)" id="prog_4" class="programme-checkbox">
+                        <label for="prog_4">BE (CSE-A & MI)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="B.E (EEE)" id="prog_5" class="programme-checkbox">
+                        <label for="prog_5">B.E (EEE)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="B.E (EE-VLSI)" id="prog_6" class="programme-checkbox">
+                        <label for="prog_6">B.E (EE-VLSI)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="BE (Mech)" id="prog_7" class="programme-checkbox">
+                        <label for="prog_7">BE (Mech)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="B.E (Med. Elec.)" id="prog_8" class="programme-checkbox">
+                        <label for="prog_8">B.E (Med. Elec.)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="BE (Rob. & Auto.)" id="prog_9" class="programme-checkbox">
+                        <label for="prog_9">BE (Rob. & Auto.)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="B.Tech (IT)" id="prog_10" class="programme-checkbox">
+                        <label for="prog_10">B.Tech (IT)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="B.Tech (Al & DS)" id="prog_11" class="programme-checkbox">
+                        <label for="prog_11">B.Tech (Al & DS)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Postgraduate Engineering & MBA -->
+            <div class="programme-category">
+                <h5 class="category-title"><i class="fas fa-graduation-cap"></i> Postgraduate Engineering & MBA</h5>
+                <div class="category-subtitle">2 Years | M.E/M.Tech/MBA Degree</div>
+                <div class="programme-options">
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="M.E (CSE)" id="prog_12" class="programme-checkbox">
+                        <label for="prog_12">M.E (CSE)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="M.E (Stru. Eng.)" id="prog_13" class="programme-checkbox">
+                        <label for="prog_13">M.E (Stru. Eng.)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="M.E (VLSI)" id="prog_14" class="programme-checkbox">
+                        <label for="prog_14">M.E (VLSI)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="M.E (MEE)" id="prog_15" class="programme-checkbox">
+                        <label for="prog_15">M.E (MEE)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="RESEARCH(Ph.D)" id="prog_16" class="programme-checkbox">
+                        <label for="prog_16">RESEARCH(Ph.D)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="MBA" id="prog_17" class="programme-checkbox">
+                        <label for="prog_17">MBA</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pharmacy -->
+            <div class="programme-category">
+                <h5 class="category-title"><i class="fas fa-pills"></i> Pharmacy</h5>
+                <div class="category-subtitle">2-6 Years | Pharmacy Degree</div>
+                <div class="programme-options">
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="D.Pharm" id="prog_18" class="programme-checkbox">
+                        <label for="prog_18">D.Pharm</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="B.Pharm" id="prog_19" class="programme-checkbox">
+                        <label for="prog_19">B.Pharm</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="M.Pharm (Pharmaceutics)" id="prog_20" class="programme-checkbox">
+                        <label for="prog_20">M.Pharm (Pharmaceutics)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="M.Pharm (Reg. Aff)" id="prog_21" class="programme-checkbox">
+                        <label for="prog_21">M.Pharm (Reg. Aff)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="Pharm. D." id="prog_22" class="programme-checkbox">
+                        <label for="prog_22">Pharm. D.</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="Pharm. D. (Post Baccalaureate)" id="prog_23" class="programme-checkbox">
+                        <label for="prog_23">Pharm. D. (Post Baccalaureate)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="B.Tech (Pharm. Tech.)" id="prog_24" class="programme-checkbox">
+                        <label for="prog_24">B.Tech (Pharm. Tech.)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Para Medical & Allied Health -->
+            <div class="programme-category">
+                <h5 class="category-title"><i class="fas fa-heartbeat"></i> Para Medical & Allied Health</h5>
+                <div class="category-subtitle">3-4 Years | B.Sc Degree</div>
+                <div class="programme-options">
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="B.Sc Nursing" id="prog_25" class="programme-checkbox">
+                        <label for="prog_25">B.Sc Nursing</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="B.Sc (MLT)" id="prog_26" class="programme-checkbox">
+                        <label for="prog_26">B.Sc (MLT)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="B.Sc (Radiology & Imaging Technology)" id="prog_27" class="programme-checkbox">
+                        <label for="prog_27">B.Sc (Radiology & Imaging Technology)</label>
+                    </div>
+                    <div class="programme-item">
+                        <input type="checkbox" name="programme_choice[]" value="B.Sc (OT & AT)" id="prog_28" class="programme-checkbox">
+                        <label for="prog_28">B.Sc (OT & AT)</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 7: ADDITIONAL INFORMATION -->
+    <div class="section-card">
+        <h3 class="section-title"><i class="fas fa-info-circle"></i> 7. Additional Information</h3>
         <div class="row">
             <div class="col-md-6">
                 <div class="field-group">
@@ -422,19 +559,23 @@
 </form>
 
 <!-- FORM VALIDATION SCRIPT -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/script.js"></script>
 <script>
     document.getElementById('registrationForm').addEventListener('submit', function(e) {
         const fullName = document.querySelector('input[name="full_name"]').value.trim();
         const email = document.querySelector('input[name="email_id"]').value.trim();
         const mobile = document.querySelector('input[name="mobile_number"]').value.trim();
         const dob = document.querySelector('input[name="date_of_birth"]').value;
-        
-        if (!fullName || !email || !mobile || !dob) {
+        const degreeType = document.querySelector('select[name="degree_type"]').value;
+        const courseDept = document.querySelector('input[name="course_department"]').value.trim();
+
+        if (!fullName || !email || !mobile || !dob || !degreeType || !courseDept) {
             e.preventDefault();
             alert('Please fill all required fields');
             return false;
         }
-        
+
         // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
@@ -442,12 +583,47 @@
             alert('Please enter a valid email address');
             return false;
         }
-        
+
         // Mobile validation
         if (!/^\d{10}$/.test(mobile)) {
             e.preventDefault();
             alert('Please enter a valid 10-digit mobile number');
             return false;
+        }
+    });
+
+    // Address copy functionality
+    document.getElementById('same_address_checkbox').addEventListener('change', function() {
+        const permanentAddress = document.querySelector('textarea[name="permanent_address"]');
+        const currentAddress = document.getElementById('current_address');
+
+        if (this.checked) {
+            // Copy permanent address to current address
+            currentAddress.value = permanentAddress.value;
+        } else {
+            // Clear current address when unchecked
+            currentAddress.value = '';
+        }
+    });
+
+    // Also update current address when permanent address changes and checkbox is checked
+    document.querySelector('textarea[name="permanent_address"]').addEventListener('input', function() {
+        const checkbox = document.getElementById('same_address_checkbox');
+        const currentAddress = document.getElementById('current_address');
+
+        if (checkbox.checked) {
+            currentAddress.value = this.value;
+        }
+    });
+
+    // First Graduate certificate toggle
+    document.querySelector('select[name="first_graduate"]').addEventListener('change', function() {
+        const container = document.getElementById('first_graduate_certificate_container');
+        if (this.value === 'Yes') {
+            container.style.display = 'block';
+        } else {
+            container.style.display = 'none';
+            document.querySelector('input[name="first_graduate_certificate"]').value = '';
         }
     });
 </script>

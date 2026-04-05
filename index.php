@@ -224,9 +224,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-weight: 600;
         }
         #logo{
-            border-radius:50%;
-            background-size:center;
-            
+            width: 100%;
+            height: auto;
+            border-radius: 40%;
+            object-fit: cover;
         }
     </style>
 </head>
@@ -235,7 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <!-- LOGIN HEADER -->
         <div class="login-header">
             <div class="icon-box">
-                <img id=logo src="sec logo.jpg">
+                <img id=logo  src="sec.jpg">
             </div>
             <h1>Admission Portal</h1>
             <p>College Admission Management System</p>
@@ -251,6 +252,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <!-- LOGIN FORM -->
         <form method="POST" action="">
+
+            <select class="form-select" name="role" required>
+    <option value="" disabled selected>-- Select Role --</option>
+    <option value="Admin">Admin - Full System Access</option>
+    <option value="Support Staff">Support Staff - Register Students</option>
+    <option value="Counselor">Counselor - Manage Admissions</option>
+    <option value="Cashier">Cashier - Handle Payments</option>
+    <option value="Management">Management - View Reports</option>
+</select>
             <!-- USERNAME FIELD -->
             <div class="form-group">
                 <label for="username" class="form-label">
@@ -267,53 +277,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
             </div>
 
-            <!-- ROLE SELECTION -->
-            <div class="form-group">
-                <label class="form-label">
-                    <i class="fas fa-user-check"></i> Select Your Role
-                </label>
-                <div class="role-selection">
-                    <!-- ADMIN -->
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="role" id="admin" value="Admin" required>
-                        <label class="form-check-label" for="admin">
-                            <i class="fas fa-user-shield"></i> Admin - Full System Access
-                        </label>
-                    </div>
-
-                    <!-- SUPPORT STAFF -->
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="role" id="support" value="Support Staff">
-                        <label class="form-check-label" for="support">
-                            <i class="fas fa-headset"></i> Support Staff - Register Students
-                        </label>
-                    </div>
-
-                    <!-- COUNSELOR -->
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="role" id="counselor" value="Counselor">
-                        <label class="form-check-label" for="counselor">
-                            <i class="fas fa-user-tie"></i> Counselor - Manage Admissions
-                        </label>
-                    </div>
-
-                    <!-- CASHIER -->
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="role" id="cashier" value="Cashier">
-                        <label class="form-check-label" for="cashier">
-                            <i class="fas fa-cash-register"></i> Cashier - Handle Payments
-                        </label>
-                    </div>
-
-                    <!-- MANAGEMENT -->
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="role" id="management" value="Management">
-                        <label class="form-check-label" for="management">
-                            <i class="fas fa-chart-line"></i> Management - View Reports
-                        </label>
-                    </div>
-                </div>
-            </div>
+           
 
             <!-- LOGIN BUTTON -->
             <button type="submit" class="btn btn-login">
@@ -323,15 +287,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
       
 
-    <!-- BOOTSTRAP JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <!-- FORM VALIDATION SCRIPT -->
     <script>
         document.querySelector('form').addEventListener('submit', function(e) {
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
-            const role = document.querySelector('input[name="role"]:checked');
+            const roleSelect = document.querySelector('select[name="role"]');
+            const role = roleSelect.value;
             
             if (!username || !password || !role) {
                 e.preventDefault();
