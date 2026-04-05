@@ -1,0 +1,74 @@
+﻿Field	Type	Null	Key	Default	Extra
+id	int(11)	NO	PRI	NULL	auto_increment
+admission_id	varchar(20)	YES	UNI	NULL	
+full_name	varchar(100)	NO	MUL	NULL	
+date_of_birth	date	NO		NULL	
+gender	enum('Male','Female','Other')	NO		NULL	
+nationality	varchar(50)	YES		Indian	
+religion	varchar(50)	YES		NULL	
+community	enum('General','OBC','SC','ST')	YES		General	
+aadhaar_number	varchar(12)	YES	UNI	NULL	
+blood_group	varchar(5)	YES		NULL	
+passport_photo	varchar(255)	YES		NULL	
+mobile_number	varchar(15)	NO	UNI	NULL	
+alternate_mobile	varchar(15)	YES		NULL	
+email_id	varchar(100)	NO	UNI	NULL	
+permanent_address	text	NO		NULL	
+current_address	text	YES		NULL	
+city	varchar(50)	NO		NULL	
+state	varchar(50)	NO		NULL	
+pincode	varchar(6)	NO		NULL	
+father_name	varchar(100)	YES		NULL	
+mother_name	varchar(100)	YES		NULL	
+guardian_name	varchar(100)	YES		NULL	
+parent_occupation	varchar(100)	YES		NULL	
+parent_mobile	varchar(15)	YES		NULL	
+parent_email	varchar(100)	YES		NULL	
+annual_family_income	bigint(20)	YES		NULL	
+class_10_school	varchar(150)	YES		NULL	
+class_10_board	enum('State Board','CBSE','ICSE','IB')	YES		State Board	
+class_10_register_number	varchar(50)	YES	UNI	NULL	
+class_10_percentage	decimal(5,2)	YES		NULL	
+class_10_marksheet	varchar(255)	YES		NULL	
+class_12_school	varchar(150)	YES		NULL	
+class_12_board	enum('State Board','CBSE','ICSE','IB')	YES		State Board	
+class_12_register_number	varchar(50)	YES	UNI	NULL	
+class_12_percentage	decimal(5,2)	YES		NULL	
+class_12_subject_1_marks	decimal(5,2)	YES		NULL	
+class_12_subject_2_marks	decimal(5,2)	YES		NULL	
+class_12_subject_3_marks	decimal(5,2)	YES		NULL	
+class_12_subject_4_marks	decimal(5,2)	YES		NULL	
+class_12_subject_5_marks	decimal(5,2)	YES		NULL	
+class_12_subjects	varchar(255)	YES		NULL	
+class_12_marksheet	varchar(255)	YES		NULL	
+programme_choice	text	YES		NULL	
+entrance_exam_type	enum('JEE Main','NEET','CUET','State CET','Other')	YES		NULL	
+entrance_exam_score	decimal(5,2)	YES		NULL	
+entrance_exam_scorecard	varchar(255)	YES		NULL	
+degree_type	enum('B.Tech','B.Sc','B.Com','B.A','Other')	YES		B.Tech	
+course_department	varchar(100)	YES	MUL	NULL	
+preferred_specialization	varchar(100)	YES		NULL	
+admission_type	enum('Merit','Management','Entrance')	YES		Merit	
+transfer_certificate	varchar(255)	YES		NULL	
+community_certificate	varchar(255)	YES		NULL	
+income_certificate	varchar(255)	YES		NULL	
+aadhaar_card	varchar(255)	YES		NULL	
+migration_certificate	varchar(255)	YES		NULL	
+account_holder_name	varchar(100)	YES		NULL	
+bank_name	varchar(100)	YES		NULL	
+account_number	varchar(20)	YES		NULL	
+ifsc_code	varchar(11)	YES		NULL	
+branch_name	varchar(100)	YES		NULL	
+hostel_requirement	enum('Yes','No')	YES		No	
+transport_requirement	enum('Yes','No')	YES		No	
+scholarship_details	text	YES		NULL	
+sports_achievements	text	YES		NULL	
+medical_information	text	YES		NULL	
+documents_verified	enum('Yes','No')	YES		No	
+verified_by	int(11)	YES	MUL	NULL	
+verified_date	timestamp	YES		NULL	
+application_status	enum('Submitted','Under Review','Approved','Rejected')	YES	MUL	Submitted	
+admission_confirmed_date	timestamp	YES		NULL	
+department	varchar(100)	YES		NULL	
+created_at	timestamp	NO		current_timestamp()	
+updated_at	timestamp	NO		current_timestamp()	on update current_timestamp()

@@ -83,6 +83,12 @@
                 <div class="field-value"><?php echo !empty($selectedStudent['blood_group']) ? htmlspecialchars($selectedStudent['blood_group']) : 'Not Provided'; ?></div>
             </div>
         </div>
+        <div class="col-md-6">
+            <div class="field-group">
+                <label class="field-label">First Graduate</label>
+                <div class="field-value"><?php echo !empty($selectedStudent['first_graduate']) ? htmlspecialchars($selectedStudent['first_graduate']) : 'Not Provided'; ?></div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -234,6 +240,21 @@
                 <label class="field-label">Percentage</label>
                 <div class="field-value"><?php echo htmlspecialchars($selectedStudent['class_12_percentage'] ?? 'N/A'); ?>%</div>
             </div>
+            <div class="field-group">
+                <label class="field-label">Subject Marks</label>
+                <div class="field-value">
+                    <?php
+                        $marks = [];
+                        for ($i = 1; $i <= 5; $i++) {
+                            $markKey = 'class_12_subject_' . $i . '_marks';
+                            if (!empty($selectedStudent[$markKey])) {
+                                $marks[] = 'Subject ' . $i . ': ' . htmlspecialchars($selectedStudent[$markKey]) . '%';
+                            }
+                        }
+                        echo !empty($marks) ? implode(', ', $marks) : 'N/A';
+                    ?>
+                </div>
+            </div>
         </div>
 
         <!-- Entrance Exam -->
@@ -279,6 +300,12 @@
                 <div class="field-value"><?php echo htmlspecialchars($selectedStudent['course_department'] ?? 'N/A'); ?></div>
             </div>
         </div>
+        <div class="col-md-12">
+            <div class="field-group">
+                <label class="field-label">Programme Choice</label>
+                <div class="field-value"><?php echo !empty($selectedStudent['programme_choice']) ? htmlspecialchars($selectedStudent['programme_choice']) : 'N/A'; ?></div>
+            </div>
+        </div>
         <div class="col-md-6">
             <div class="field-group">
                 <label class="field-label">Preferred Specialization</label>
@@ -294,7 +321,62 @@
     </div>
 </div>
 
-<!-- SECTION 6: BANK DETAILS -->
+<!-- SECTION 6: DOCUMENTS -->
+<div class="section-card">
+    <h3 class="section-title"><i class="fas fa-file-medical"></i> Documents</h3>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="field-group">
+                <label class="field-label">Passport Photo</label>
+                <div class="field-value">
+                    <?php if (!empty($selectedStudent['passport_photo'])): ?>
+                        <a href="../uploads/<?php echo htmlspecialchars($selectedStudent['passport_photo']); ?>" target="_blank">View Photo</a>
+                    <?php else: ?>
+                        Not Provided
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="field-group">
+                <label class="field-label">10th Marksheet</label>
+                <div class="field-value">
+                    <?php if (!empty($selectedStudent['class_10_marksheet'])): ?>
+                        <a href="../uploads/<?php echo htmlspecialchars($selectedStudent['class_10_marksheet']); ?>" target="_blank">View Marksheet</a>
+                    <?php else: ?>
+                        Not Provided
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="field-group">
+                <label class="field-label">12th Marksheet</label>
+                <div class="field-value">
+                    <?php if (!empty($selectedStudent['class_12_marksheet'])): ?>
+                        <a href="../uploads/<?php echo htmlspecialchars($selectedStudent['class_12_marksheet']); ?>" target="_blank">View Marksheet</a>
+                    <?php else: ?>
+                        Not Provided
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="field-group">
+                <label class="field-label">First Graduate Certificate</label>
+                <div class="field-value">
+                    <?php if (!empty($selectedStudent['first_graduate_certificate'])): ?>
+                        <a href="../uploads/<?php echo htmlspecialchars($selectedStudent['first_graduate_certificate']); ?>" target="_blank">View Certificate</a>
+                    <?php else: ?>
+                        Not Provided
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 7: BANK DETAILS -->
 <div class="section-card">
     <h3 class="section-title"><i class="fas fa-bank"></i> Bank Details</h3>
     <div class="row">

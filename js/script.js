@@ -1,13 +1,17 @@
 // admission-system/js/script.js
 
 // ============================================
-// DOM Ready Event
+// Enhanced DOM Ready
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
     initializeTooltips();
     initializeFormValidation();
     autoHideAlerts();
     initializeDataTables();
+    initializeClass12CutoffCalculator();
+    initializeProgrammeChoice();
+    initializeProgrammeTooltips();
+    initializeProgrammeSearch();
 });
 
 // ============================================
@@ -73,6 +77,52 @@ function initializeDataTables() {
 }
 
 // ============================================
+// Initialize Class 12 Cutoff Calculator
+// ============================================
+function initializeClass12CutoffCalculator() {
+    const cutoffPercentageInput = document.querySelector('input[name="class_12_percentage"]');
+    const cutoffMarkInput = document.querySelector('input[name="class_12_cutoff_mark"]');
+    const subjectsSelect = document.querySelector('select[name="class_12_subjects"]');
+    const mathsInput = document.querySelector('input[name="class_12_maths_marks"]');
+    const physicsInput = document.querySelector('input[name="class_12_physics_marks"]');
+    const chemistryInput = document.querySelector('input[name="class_12_chemistry_marks"]');
+
+    const updateCutoff = () => {
+        // Check if MPC is selected
+        const selectedSubjects = subjectsSelect ? subjectsSelect.value : '';
+        const isMPC = selectedSubjects === 'Mathematics, Physics, Chemistry';
+
+        if (!isMPC || !mathsInput || !physicsInput || !chemistryInput) {
+            // Clear cutoff values if not MPC or inputs don't exist
+            if (cutoffMarkInput) cutoffMarkInput.value = '';
+            if (cutoffPercentageInput) cutoffPercentageInput.value = '';
+            return;
+        }
+
+        const maths = parseFloat(mathsInput.value) || 0;
+        const physics = parseFloat(physicsInput.value) || 0;
+        const chemistry = parseFloat(chemistryInput.value) || 0;
+
+        // Calculate cutoff mark: Maths (100) + Physics/2 (50) + Chemistry/2 (50) = Total out of 200
+        const cutoffMark = maths + (physics / 2) + (chemistry / 2);
+        cutoffMarkInput.value = cutoffMark.toFixed(2);
+
+        // Calculate cutoff percentage as (cutoff mark / 200) * 100
+        const cutoffPercentage = (cutoffMark / 200) * 100;
+        cutoffPercentageInput.value = cutoffPercentage.toFixed(2);
+    };
+
+    // Add event listeners
+    if (mathsInput) mathsInput.addEventListener('input', updateCutoff);
+    if (physicsInput) physicsInput.addEventListener('input', updateCutoff);
+    if (chemistryInput) chemistryInput.addEventListener('input', updateCutoff);
+    if (subjectsSelect) subjectsSelect.addEventListener('change', updateCutoff);
+
+    // Initialize on page load
+    updateCutoff();
+}
+
+// ============================================
 // Show Toast Notification
 // ============================================
 function showToast(message, type = 'info', duration = 5000) {
@@ -117,6 +167,86 @@ function formatNumber(number) {
 }
 
 // ============================================
+// Enhanced Programme Choice Functionality
+// ============================================
+function initializeProgrammeChoice() {
+    const programmeCheckboxes = document.querySelectorAll('.programme-checkbox');
+    const selectedCountElement = document.getElementById('selected-count');
+
+    if (!programmeCheckboxes.length) return;
+
+    function updateSelectionSummary() {
+        const selectedCheckboxes = document.querySelectorAll('.programme-checkbox:checked');
+        const selectedCount = selectedCheckboxes.length;
+
+        // Update counter
+        if (selectedCountElement) {
+            selectedCountElement.textContent = selectedCount;
+        }
+
+        // Visual feedback for selection limit
+        const counterDisplay = document.querySelector('.counter-display');
+        if (counterDisplay) {
+            counterDisplay.classList.toggle('warning', selectedCount > 5);
+            counterDisplay.classList.toggle('danger', selectedCount > 7);
+        }
+    }
+
+    // Add event listeners to checkboxes
+    programmeCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateSelectionSummary();
+
+            // Add visual feedback to programme item
+            const programmeItem = this.closest('.programme-item');
+            if (programmeItem) {
+                programmeItem.classList.toggle('selected', this.checked);
+            }
+        });
+    });
+
+    // Initialize on page load
+    updateSelectionSummary();
+}
+
+// ============================================
+// Programme Card Tooltip Enhancement
+// ============================================
+function initializeProgrammeTooltips() {
+    // Initialize tooltips for the simple programme items
+    const programmeItems = document.querySelectorAll('.programme-item');
+
+    programmeItems.forEach(item => {
+        const label = item.querySelector('label');
+        if (label) {
+            item.setAttribute('data-bs-toggle', 'tooltip');
+            item.setAttribute('data-bs-placement', 'top');
+            item.setAttribute('title', label.textContent);
+        }
+    });
+
+    // Reinitialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+}
+
+// ============================================
+
+
+// ============================================
+// Enhanced DOM Ready
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTooltips();
+    initializeFormValidation();
+    autoHideAlerts();
+    initializeDataTables();
+    initializeClass12CutoffCalculator();
+    initializeProgrammeChoice();
+    initializeProgrammeTooltips();
+});
 // Format Date
 // ============================================
 function formatDate(dateString) {
