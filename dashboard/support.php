@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['search_admission'])) {
     
     if (empty($admission_id)) {
         $error = "❌ Please enter an Admission ID!";
-    } elseif (!preg_match('/^SI\d{8}\d{3}$/', $admission_id)) {
+    } elseif (!preg_match('/^SI\d{7}$/', $admission_id)) {
         $error = "❌ Invalid Admission ID format! (Expected: SI1003001)";
     } else {
         $student = getStudentByAdmissionID($conn, $admission_id);
@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_student'])) {
     $nationality = $conn->real_escape_string($_POST['nationality'] ?? 'Indian');
     $religion = $conn->real_escape_string($_POST['religion'] ?? '');
     $community = $conn->real_escape_string($_POST['community']);
+    $community_other = ($community === 'Other' && !empty($_POST['community_other'])) ? $conn->real_escape_string($_POST['community_other']) : '';
     $aadhaar_number = $conn->real_escape_string($_POST['aadhaar_number'] ?? '');
     $blood_group = $conn->real_escape_string($_POST['blood_group'] ?? '');
     $first_graduate = $conn->real_escape_string($_POST['first_graduate'] ?? '');
@@ -138,6 +139,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_student'])) {
     $class_10_marksheet = '';
     $class_12_marksheet = '';
     $first_graduate_certificate = '';
+    $income_certificate = '';
+    $transfer_certificate = '';
 
     $uploadDir = realpath(__DIR__ . '/../uploads');
     if (!$uploadDir) {
@@ -149,7 +152,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_student'])) {
         'passport_photo',
         'class_10_marksheet',
         'class_12_marksheet',
-        'first_graduate_certificate'
+        'first_graduate_certificate',
+        'income_certificate',
+        'transfer_certificate'
     ];
 
     foreach ($uploadFields as $field) {
@@ -195,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_student'])) {
             
             // Insert student data
             $sql = "INSERT INTO students (
-                admission_id, full_name, date_of_birth, gender, nationality, religion, community, aadhaar_number, blood_group, first_graduate,
+                admission_id, full_name, date_of_birth, gender, nationality, religion, community, community_other, aadhaar_number, blood_group, first_graduate,
                 mobile_number, alternate_mobile, email_id, city, state, pincode, permanent_address, current_address,
                 father_name, mother_name, guardian_name, parent_occupation, parent_mobile, parent_email, annual_family_income,
                 class_10_school, class_10_board, class_10_register_number, class_10_percentage,
@@ -205,11 +210,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_student'])) {
                 programme_choice,
                 entrance_exam_type, entrance_exam_score,
                 degree_type, course_department, preferred_specialization, admission_type,
-                passport_photo, first_graduate_certificate, account_holder_name, bank_name, account_number, ifsc_code, branch_name,
+                passport_photo, first_graduate_certificate, income_certificate, transfer_certificate, account_holder_name, bank_name, account_number, ifsc_code, branch_name,
                 hostel_requirement, transport_requirement, scholarship_details, sports_achievements, medical_information,
                 application_status
             ) VALUES (
-                '$admission_id', '$full_name', '$date_of_birth', '$gender', '$nationality', '$religion', '$community', '$aadhaar_number', '$blood_group', '$first_graduate',
+                '$admission_id', '$full_name', '$date_of_birth', '$gender', '$nationality', '$religion', '$community', '$community_other', '$aadhaar_number', '$blood_group', '$first_graduate',
                 '$mobile_number', '$alternate_mobile', '$email_id', '$city', '$state', '$pincode', '$permanent_address', '$current_address',
                 '$father_name', '$mother_name', '$guardian_name', '$parent_occupation', '$parent_mobile', '$parent_email', $annual_family_income,
                 '$class_10_school', '$class_10_board', '$class_10_register_number', $class_10_percentage,
@@ -219,9 +224,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_student'])) {
                 '$programme_choice',
                 '$entrance_exam_type', $entrance_exam_score,
                 '$degree_type', '$course_department', '$preferred_specialization', '$admission_type',
-                '$passport_photo', '$first_graduate_certificate', '$account_holder_name', '$bank_name', '$account_number', '$ifsc_code', '$branch_name',
+                '$passport_photo', '$first_graduate_certificate', '$income_certificate', '$transfer_certificate', '$account_holder_name', '$bank_name', '$account_number', '$ifsc_code', '$branch_name',
                 '$hostel_requirement', '$transport_requirement', '$scholarship_details', '$sports_achievements', '$medical_information',
-                'Submitted'
+                'Enquiry'
             )";
             
             if ($conn->query($sql)) {

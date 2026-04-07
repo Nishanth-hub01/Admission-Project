@@ -68,7 +68,14 @@
         <div class="col-md-6">
             <div class="field-group">
                 <label class="field-label">Community/Category</label>
-                <div class="field-value"><?php echo htmlspecialchars($selectedStudent['community'] ?? 'General'); ?></div>
+                <div class="field-value">
+                    <?php 
+                    echo htmlspecialchars($selectedStudent['community'] ?? 'General');
+                    if (!empty($selectedStudent['community_other'])) {
+                        echo ' (' . htmlspecialchars($selectedStudent['community_other']) . ')';
+                    }
+                    ?>
+                </div>
             </div>
         </div>
         <div class="col-md-6">
@@ -367,6 +374,30 @@
                 <div class="field-value">
                     <?php if (!empty($selectedStudent['first_graduate_certificate'])): ?>
                         <a href="../uploads/<?php echo htmlspecialchars($selectedStudent['first_graduate_certificate']); ?>" target="_blank">View Certificate</a>
+                    <?php else: ?>
+                        Not Provided
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="field-group">
+                <label class="field-label">Income Certificate</label>
+                <div class="field-value">
+                    <?php if (!empty($selectedStudent['income_certificate'])): ?>
+                        <a href="../uploads/<?php echo htmlspecialchars($selectedStudent['income_certificate']); ?>" target="_blank">View Certificate</a>
+                    <?php else: ?>
+                        Not Provided
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="field-group">
+                <label class="field-label">Transfer Certificate</label>
+                <div class="field-value">
+                    <?php if (!empty($selectedStudent['transfer_certificate'])): ?>
+                        <a href="../uploads/<?php echo htmlspecialchars($selectedStudent['transfer_certificate']); ?>" target="_blank">View Certificate</a>
                     <?php else: ?>
                         Not Provided
                     <?php endif; ?>

@@ -26,7 +26,8 @@ CREATE TABLE students (
     gender ENUM('Male', 'Female', 'Other') NOT NULL,
     nationality VARCHAR(50) DEFAULT 'Indian',
     religion VARCHAR(50),
-    community ENUM('General', 'OBC', 'SC', 'ST') DEFAULT 'General',
+    community ENUM('General', 'OC', 'BC', 'BCM', 'MBC/DNC', 'SC', 'SCA', 'ST', 'Other') DEFAULT 'General',
+    community_other VARCHAR(100),
     aadhaar_number VARCHAR(12) UNIQUE,
     blood_group VARCHAR(5),
     first_graduate ENUM('Yes','No'),
@@ -111,7 +112,7 @@ CREATE TABLE students (
     verified_date TIMESTAMP NULL,
     
     -- Status Fields
-    application_status ENUM('Submitted', 'Under Review', 'Approved', 'Rejected') DEFAULT 'Submitted',
+    application_status ENUM('Enquiry', 'Payment Pending', 'Confirmed', 'Rejected') DEFAULT 'Enquiry',
     department VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
