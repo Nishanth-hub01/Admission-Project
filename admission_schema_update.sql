@@ -1,6 +1,15 @@
 -- Update students table to include admission_id
 ALTER TABLE students ADD COLUMN IF NOT EXISTS admission_id VARCHAR(20) UNIQUE AFTER id;
 
+-- Update community field to include Tamil Nadu categories
+ALTER TABLE students MODIFY COLUMN community ENUM('General', 'OC', 'BC', 'BCM', 'MBC/DNC', 'SC', 'SCA', 'ST', 'Other') DEFAULT 'General';
+
+-- Add community_other field for manual entry when Other is selected
+ALTER TABLE students ADD COLUMN IF NOT EXISTS community_other VARCHAR(100) AFTER community;
+
+-- Update application_status to include new workflow statuses
+ALTER TABLE students MODIFY COLUMN application_status ENUM('Enquiry', 'Payment Pending', 'Confirmed', 'Rejected') DEFAULT 'Enquiry';
+
 -- Add first graduate fields
 ALTER TABLE students ADD COLUMN IF NOT EXISTS first_graduate ENUM('Yes','No') AFTER blood_group;
 ALTER TABLE students ADD COLUMN IF NOT EXISTS first_graduate_certificate VARCHAR(255) AFTER first_graduate;

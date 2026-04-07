@@ -12,8 +12,8 @@ $page_title = "Management Dashboard";
 $totalApplications = $conn->query("SELECT COUNT(*) as count FROM students")->fetch_assoc()['count'];
 $totalFeeCollected = $conn->query("SELECT SUM(paid_amount) as total FROM payments WHERE payment_status = 'Paid'")->fetch_assoc()['total'] ?? 0;
 $pendingPayments = $conn->query("SELECT SUM(total_fee - paid_amount) as total FROM payments WHERE payment_status = 'Pending'")->fetch_assoc()['total'] ?? 0;
-$totalApproved = $conn->query("SELECT COUNT(*) as count FROM students WHERE application_status = 'Approved'")->fetch_assoc()['count'];
-$totalPending = $conn->query("SELECT COUNT(*) as count FROM students WHERE application_status = 'Submitted'")->fetch_assoc()['count'];
+$totalApproved = $conn->query("SELECT COUNT(*) as count FROM students WHERE application_status = 'Confirmed'")->fetch_assoc()['count'];
+$totalPending = $conn->query("SELECT COUNT(*) as count FROM students WHERE application_status = 'Enquiry'")->fetch_assoc()['count'];
 
 // Get today's applications
 $today = date('Y-m-d');
@@ -31,7 +31,7 @@ $todayPayments = $conn->query("
 // Get department-wise distribution
 $deptStats = [];
 $deptResult = $conn->query("
-    SELECT course_department, COUNT(*) as count, SUM(CASE WHEN application_status = 'Approved' THEN 1 ELSE 0 END) as approved
+    SELECT course_department, COUNT(*) as count, SUM(CASE WHEN application_status = 'Confirmed' THEN 1 ELSE 0 END) as approved
     FROM students
     WHERE course_department IS NOT NULL
     GROUP BY course_department
@@ -245,7 +245,7 @@ $error = '';
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="stat-card" style="border-left-color: #2ecc71;">
-                        <div class="stat-label" style="color: #2ecc71;"><i class="fas fa-check-circle"></i> Approved</div>
+                        <div class="stat-label" style="color: #2ecc71;"><i class="fas fa-check-circle"></i> Confirmed</div>
                         <div class="stat-number" style="color: #2ecc71;"><?php echo $totalApproved; ?></div>
                         <small style="color: #999;"><?php echo $conversionRate; ?>% conversion</small>
                     </div>
@@ -317,8 +317,8 @@ $error = '';
                                 <tr>
                                     <th>Department</th>
                                     <th>Total Applications</th>
-                                    <th>Approved</th>
-                                    <th>Approval %</th>
+                                    <th>Confirmed</th>
+                                    <th>Conversion %</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -505,7 +505,7 @@ $error = '';
         new Chart(statusCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Approved', 'Pending'],
+                labels: ['Confirmed', 'Enquiry'],
                 datasets: [{
                     data: [<?php echo $totalApproved; ?>, <?php echo $totalPending; ?>],
                     backgroundColor: ['#2ecc71', '#f39c12'],

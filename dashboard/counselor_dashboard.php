@@ -27,12 +27,164 @@ $currentTab = isset($_GET['tab']) ? $_GET['tab'] : 'dashboard';
 $selectedStudent = null;
 
 // ============================================
-// CONFIRM ADMISSION
+// UPDATE FULL STUDENT DETAILS
+// ============================================
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_full_student'])) {
+    $student_id = (int)$_POST['student_id'];
+    
+    // Personal Details
+    $full_name = $conn->real_escape_string(trim($_POST['full_name']));
+    $date_of_birth = $conn->real_escape_string($_POST['date_of_birth']);
+    $gender = $conn->real_escape_string($_POST['gender']);
+    $nationality = $conn->real_escape_string($_POST['nationality'] ?? 'Indian');
+    $religion = $conn->real_escape_string($_POST['religion'] ?? '');
+    $community = $conn->real_escape_string($_POST['community']);
+    $community_other = ($community === 'Other' && !empty($_POST['community_other'])) ? $conn->real_escape_string($_POST['community_other']) : '';
+    $aadhaar_number = $conn->real_escape_string($_POST['aadhaar_number'] ?? '');
+    
+    // Contact Details
+    $mobile_number = $conn->real_escape_string($_POST['mobile_number']);
+    $email_id = $conn->real_escape_string($_POST['email_id']);
+    $city = $conn->real_escape_string($_POST['city'] ?? '');
+    $state = $conn->real_escape_string($_POST['state'] ?? '');
+    $pincode = $conn->real_escape_string($_POST['pincode'] ?? '');
+    $permanent_address = $conn->real_escape_string($_POST['permanent_address'] ?? '');
+    
+    // Academic Details
+    $class_12_school = $conn->real_escape_string($_POST['class_12_school'] ?? '');
+    $class_12_board = $conn->real_escape_string($_POST['class_12_board'] ?? 'State Board');
+    $class_12_percentage = !empty($_POST['class_12_percentage']) ? (float)$_POST['class_12_percentage'] : 0;
+    $entrance_exam_type = $conn->real_escape_string($_POST['entrance_exam_type'] ?? '');
+    $entrance_exam_score = $conn->real_escape_string($_POST['entrance_exam_score'] ?? '');
+    
+    // Course Details
+    $degree_type = $conn->real_escape_string($_POST['degree_type'] ?? '');
+    $course_department = $conn->real_escape_string($_POST['course_department']);
+    $preferred_specialization = $conn->real_escape_string($_POST['preferred_specialization'] ?? '');
+    $admission_type = $conn->real_escape_string($_POST['admission_type'] ?? '');
+    $application_status = $conn->real_escape_string($_POST['application_status']);
+    
+    $blood_group = $conn->real_escape_string($_POST['blood_group'] ?? '');
+    $first_graduate = $conn->real_escape_string($_POST['first_graduate'] ?? '');
+    $alternate_mobile = $conn->real_escape_string($_POST['alternate_mobile'] ?? '');
+    $current_address = $conn->real_escape_string($_POST['current_address'] ?? '');
+    $father_name = $conn->real_escape_string($_POST['father_name'] ?? '');
+    $mother_name = $conn->real_escape_string($_POST['mother_name'] ?? '');
+    $guardian_name = $conn->real_escape_string($_POST['guardian_name'] ?? '');
+    $parent_occupation = $conn->real_escape_string($_POST['parent_occupation'] ?? '');
+    $parent_mobile = $conn->real_escape_string($_POST['parent_mobile'] ?? '');
+    $parent_email = $conn->real_escape_string($_POST['parent_email'] ?? '');
+    $annual_family_income = isset($_POST['annual_family_income']) ? (int)$_POST['annual_family_income'] : 0;
+    
+    $class_10_school = $conn->real_escape_string($_POST['class_10_school'] ?? '');
+    $class_10_board = $conn->real_escape_string($_POST['class_10_board'] ?? '');
+    $class_10_register_number = $conn->real_escape_string($_POST['class_10_register_number'] ?? '');
+    $class_10_percentage = isset($_POST['class_10_percentage']) ? (float)$_POST['class_10_percentage'] : 0;
+    
+    $class_12_register_number = $conn->real_escape_string($_POST['class_12_register_number'] ?? '');
+    $class_12_subject_1_marks = isset($_POST['class_12_subject_1_marks']) && $_POST['class_12_subject_1_marks'] !== '' ? (float)$_POST['class_12_subject_1_marks'] : 'NULL';
+    $class_12_subject_2_marks = isset($_POST['class_12_subject_2_marks']) && $_POST['class_12_subject_2_marks'] !== '' ? (float)$_POST['class_12_subject_2_marks'] : 'NULL';
+    $class_12_subject_3_marks = isset($_POST['class_12_subject_3_marks']) && $_POST['class_12_subject_3_marks'] !== '' ? (float)$_POST['class_12_subject_3_marks'] : 'NULL';
+    $class_12_subject_4_marks = isset($_POST['class_12_subject_4_marks']) && $_POST['class_12_subject_4_marks'] !== '' ? (float)$_POST['class_12_subject_4_marks'] : 'NULL';
+    $class_12_subject_5_marks = isset($_POST['class_12_subject_5_marks']) && $_POST['class_12_subject_5_marks'] !== '' ? (float)$_POST['class_12_subject_5_marks'] : 'NULL';
+    $class_12_subjects = $conn->real_escape_string($_POST['class_12_subjects'] ?? '');
+    $programme_choice = $conn->real_escape_string($_POST['programme_choice'] ?? '');
+    
+    $hostel_requirement = $conn->real_escape_string($_POST['hostel_requirement'] ?? 'No');
+    $transport_requirement = $conn->real_escape_string($_POST['transport_requirement'] ?? 'No');
+    $scholarship_details = $conn->real_escape_string($_POST['scholarship_details'] ?? '');
+    $sports_achievements = $conn->real_escape_string($_POST['sports_achievements'] ?? '');
+    $medical_information = $conn->real_escape_string($_POST['medical_information'] ?? '');
+
+    $sql = "UPDATE students SET 
+        full_name = '$full_name',
+        date_of_birth = '$date_of_birth',
+        gender = '$gender',
+        nationality = '$nationality',
+        religion = '$religion',
+        community = '$community',
+        community_other = '$community_other',
+        aadhaar_number = '$aadhaar_number',
+        mobile_number = '$mobile_number',
+        email_id = '$email_id',
+        city = '$city',
+        state = '$state',
+        pincode = '$pincode',
+        permanent_address = '$permanent_address',
+        class_12_school = '$class_12_school',
+        class_12_board = '$class_12_board',
+        class_12_percentage = $class_12_percentage,
+        entrance_exam_type = '$entrance_exam_type',
+        entrance_exam_score = '$entrance_exam_score',
+        degree_type = '$degree_type',
+        course_department = '$course_department',
+        preferred_specialization = '$preferred_specialization',
+        admission_type = '$admission_type',
+        blood_group = '$blood_group',
+        first_graduate = '$first_graduate',
+        alternate_mobile = '$alternate_mobile',
+        current_address = '$current_address',
+        father_name = '$father_name',
+        mother_name = '$mother_name',
+        guardian_name = '$guardian_name',
+        parent_occupation = '$parent_occupation',
+        parent_mobile = '$parent_mobile',
+        parent_email = '$parent_email',
+        annual_family_income = $annual_family_income,
+        class_10_school = '$class_10_school',
+        class_10_board = '$class_10_board',
+        class_10_register_number = '$class_10_register_number',
+        class_10_percentage = $class_10_percentage,
+        class_12_register_number = '$class_12_register_number',
+        class_12_subject_1_marks = $class_12_subject_1_marks,
+        class_12_subject_2_marks = $class_12_subject_2_marks,
+        class_12_subject_3_marks = $class_12_subject_3_marks,
+        class_12_subject_4_marks = $class_12_subject_4_marks,
+        class_12_subject_5_marks = $class_12_subject_5_marks,
+        class_12_subjects = '$class_12_subjects',
+        programme_choice = '$programme_choice',
+        hostel_requirement = '$hostel_requirement',
+        transport_requirement = '$transport_requirement',
+        scholarship_details = '$scholarship_details',
+        sports_achievements = '$sports_achievements',
+        medical_information = '$medical_information',
+        application_status = '$application_status'
+        WHERE id = $student_id";
+    
+    if ($conn->query($sql)) {
+        $success = "✅ Student details updated successfully!";
+        // Refresh the selected student data
+        $selectedStudent = getStudentByAdmissionID($conn, $selectedStudent['admission_id']);
+    } else {
+        $error = "❌ Error updating student: " . $conn->error;
+    }
+}
+
+// ============================================
+// UPDATE STUDENT STATUS
+// ============================================
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_status'])) {
+    $student_id = (int)$_POST['student_id'];
+    $new_status = $conn->real_escape_string($_POST['new_status']);
+    
+    $stmt = $conn->prepare("UPDATE students SET application_status = ? WHERE id = ?");
+    $stmt->bind_param("si", $new_status, $student_id);
+    
+    if ($stmt->execute()) {
+        $success = "✅ Student status updated to '$new_status' successfully!";
+    } else {
+        $error = "❌ Error updating status: " . $conn->error;
+    }
+    $stmt->close();
+}
+
+// ============================================
+// CONFIRM ADMISSION (LEGACY - KEEP FOR COMPATIBILITY)
 // ============================================
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirm_admission'])) {
     $student_id = (int)$_POST['student_id'];
     
-    $stmt = $conn->prepare("UPDATE students SET application_status = 'Approved', 
+    $stmt = $conn->prepare("UPDATE students SET application_status = 'Confirmed', 
                            admission_confirmed_date = NOW() WHERE id = ?");
     $stmt->bind_param("i", $student_id);
     
@@ -80,8 +232,8 @@ if (isset($_GET['view_student'])) {
 // GET STATISTICS
 // ============================================
 $totalStudents = $conn->query("SELECT COUNT(*) as count FROM students")->fetch_assoc()['count'];
-$pendingAdmissions = $conn->query("SELECT COUNT(*) as count FROM students WHERE application_status = 'Submitted'")->fetch_assoc()['count'];
-$approvedAdmissions = $conn->query("SELECT COUNT(*) as count FROM students WHERE application_status = 'Approved'")->fetch_assoc()['count'];
+$pendingAdmissions = $conn->query("SELECT COUNT(*) as count FROM students WHERE application_status = 'Enquiry'")->fetch_assoc()['count'];
+$approvedAdmissions = $conn->query("SELECT COUNT(*) as count FROM students WHERE application_status = 'Confirmed'")->fetch_assoc()['count'];
 
 // Fetch all students
 $students = [];
@@ -157,21 +309,24 @@ if ($feeResult && $feeResult->num_rows > 0) {
             margin-bottom: 20px;
         }
         
-        .field-label {
-            color: #333;
+        .field-label, .form-label {
+            color: #1a202c !important;
             font-weight: 600;
             margin-bottom: 8px;
             display: block;
             font-size: 0.95rem;
         }
         
-        .field-value {
-            color: #555;
+        .field-value, .form-control, .form-select {
+            color: #2d3748 !important;
             padding: 12px 15px;
             background: #f8f9fa;
             border-radius: 6px;
-            border-left: 3px solid #667eea;
             font-weight: 500;
+        }
+        
+        .field-value {
+            border-left: 3px solid #667eea;
         }
         
         .stat-card {
@@ -340,13 +495,14 @@ if ($feeResult && $feeResult->num_rows > 0) {
             <div class="section-card">
                 <h3 class="section-title"><i class="fas fa-chart-bar"></i> Welcome to Counselor Dashboard</h3>
                 <p style="color: #666; line-height: 1.8; margin: 15px 0;">
-                    As a counselor, you can view all student applications submitted by support staff, 
-                    manage departments, and confirm admissions.
+                    As a counselor, you have full control over student information and manage the admission process through different stages:
+                    Enquiry → Counselor Meeting → Payment → Admission Confirmation.
                 </p>
                 <ul style="color: #666; line-height: 1.8; padding-left: 20px; margin-top: 15px;">
-                    <li><strong>👥 View Students:</strong> Browse all registered students and their details</li>
-                    <li><strong>✏️ Change Department:</strong> Update student's department/course selection</li>
-                    <li><strong>✅ Confirm Admission:</strong> Approve student admissions</li>
+                    <li><strong>👥 View Students:</strong> Browse all registered students and their current status</li>
+                    <li><strong>✏️ Edit Student Details:</strong> Update any student information (personal, contact, academic)</li>
+                    <li><strong>📝 Update Status:</strong> Change student status through the admission workflow</li>
+                    <li><strong>🏢 Change Department:</strong> Update student's department/course selection</li>
                     <li><strong>💰 View Fees:</strong> Check department fee structures</li>
                 </ul>
             </div>
@@ -414,71 +570,67 @@ if ($feeResult && $feeResult->num_rows > 0) {
                                         <td>
                                             <?php 
                                             $statusColor = 'secondary';
-                                            if ($student['application_status'] == 'Approved') $statusColor = 'success';
+                                            $statusText = $student['application_status'];
+                                            
+                                            if ($student['application_status'] == 'Confirmed') $statusColor = 'success';
+                                            elseif ($student['application_status'] == 'Payment Pending') $statusColor = 'warning';
+                                            elseif ($student['application_status'] == 'Enquiry') $statusColor = 'primary';
                                             elseif ($student['application_status'] == 'Rejected') $statusColor = 'danger';
-                                            elseif ($student['application_status'] == 'Submitted') $statusColor = 'info';
                                             ?>
                                             <span class="badge bg-<?php echo $statusColor; ?>">
-                                                <?php echo htmlspecialchars($student['application_status']); ?>
+                                                <?php echo htmlspecialchars($statusText); ?>
                                             </span>
                                         </td>
                                         <td>
                                             <a href="?tab=view_student&view_student=<?php echo $student['id']; ?>" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-eye"></i> View
+                                                <i class="fas fa-eye"></i> View & Edit
                                             </a>
-                                            <button class="btn btn-sm btn-warning" data-bs-toggle="modal" 
-                                                    data-bs-target="#editDeptModal<?php echo $student['id']; ?>">
-                                                <i class="fas fa-edit"></i> Edit Dept
+                                            <button class="btn btn-sm btn-info" data-bs-toggle="modal" 
+                                                    data-bs-target="#statusModal<?php echo $student['id']; ?>">
+                                                <i class="fas fa-exchange-alt"></i> Update Status
                                             </button>
-                                            <?php if ($student['application_status'] == 'Submitted'): ?>
-                                                <form method="POST" action="" style="display: inline;">
-                                                    <input type="hidden" name="student_id" value="<?php echo $student['id']; ?>">
-                                                    <button type="submit" name="confirm_admission" class="btn btn-sm btn-success" onclick="return confirm('Confirm admission for this student?');">
-                                                        <i class="fas fa-check"></i> Confirm
-                                                    </button>
-                                                </form>
-                                            <?php endif; ?>
                                         </td>
                                     </tr>
 
-                                    <!-- EDIT DEPARTMENT MODAL -->
-                                    <div class="modal fade" id="editDeptModal<?php echo $student['id']; ?>" tabindex="-1">
+
+                                    <!-- UPDATE STATUS MODAL -->
+                                    <div class="modal fade" id="statusModal<?php echo $student['id']; ?>" tabindex="-1">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title"><i class="fas fa-edit"></i> Change Department</h5>
+                                                    <h5 class="modal-title"><i class="fas fa-exchange-alt"></i> Update Student Status</h5>
                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                 </div>
                                                 <form method="POST" action="">
                                                     <div class="modal-body">
                                                         <p style="margin-bottom: 15px;">
                                                             <strong>Student:</strong> <?php echo htmlspecialchars($student['full_name']); ?><br>
-                                                            <strong>Admission ID:</strong> <?php echo htmlspecialchars($student['admission_id']); ?>
+                                                            <strong>Admission ID:</strong> <?php echo htmlspecialchars($student['admission_id']); ?><br>
+                                                            <strong>Current Status:</strong> <span class="badge bg-<?php echo $statusColor; ?>"><?php echo htmlspecialchars($statusText); ?></span>
                                                         </p>
                                                         <div class="form-group">
-                                                            <label class="form-label" style="font-weight: 600;">Select New Department</label>
-                                                            <select name="new_department" class="form-select" required>
-                                                                <option value="">-- Choose Department --</option>
-                                                                <?php foreach ($departments as $dept): ?>
-                                                                    <option value="<?php echo htmlspecialchars($dept); ?>" 
-                                                                            <?php echo $dept == $student['course_department'] ? 'selected' : ''; ?>>
-                                                                        <?php echo htmlspecialchars($dept); ?>
-                                                                    </option>
-                                                                <?php endforeach; ?>
+                                                            <label class="form-label" style="font-weight: 600;">Select New Status</label>
+                                                            <select name="new_status" class="form-select" required>
+                                                                <option value="">-- Choose Status --</option>
+                                                                <option value="Enquiry">Enquiry</option>
+                                                                <option value="Payment Pending">Payment Pending</option>
+                                                                <option value="Confirmed">Confirmed</option>
+                                                                <option value="Rejected">Rejected</option>
                                                             </select>
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                                         <input type="hidden" name="student_id" value="<?php echo $student['id']; ?>">
-                                                        <button type="submit" name="update_department" class="btn btn-primary">
-                                                            <i class="fas fa-save"></i> Update Department
+                                                        <button type="submit" name="update_status" class="btn btn-primary">
+                                                            <i class="fas fa-save"></i> Update Status
                                                         </button>
                                                     </div>
                                                 </form>
                                             </div>
                                         </div>
                                     </div>
+
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
@@ -554,220 +706,297 @@ if ($feeResult && $feeResult->num_rows > 0) {
                 </p>
             </div>
 
-            <!-- SECTION 1: PERSONAL DETAILS -->
-            <div class="section-card">
-                <h3 class="section-title"><i class="fas fa-user"></i> Personal Details</h3>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="field-group">
-                            <label class="field-label">Full Name</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['full_name']); ?></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="field-group">
-                            <label class="field-label">Date of Birth</label>
-                            <div class="field-value"><?php echo !empty($selectedStudent['date_of_birth']) ? date('d M Y', strtotime($selectedStudent['date_of_birth'])) : 'N/A'; ?></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="field-group">
-                            <label class="field-label">Gender</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['gender'] ?? 'N/A'); ?></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="field-group">
-                            <label class="field-label">Nationality</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['nationality'] ?? 'Indian'); ?></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="field-group">
-                            <label class="field-label">Community/Category</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['community'] ?? 'General'); ?></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="field-group">
-                            <label class="field-label">Aadhaar Number</label>
-                            <div class="field-value"><?php echo !empty($selectedStudent['aadhaar_number']) ? htmlspecialchars($selectedStudent['aadhaar_number']) : 'Not Provided'; ?></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- EDIT STUDENT FORM -->
+            <form method="POST" action="">
+                <input type="hidden" name="student_id" value="<?php echo $selectedStudent['id']; ?>">
 
-            <!-- SECTION 2: CONTACT DETAILS -->
-            <div class="section-card">
-                <h3 class="section-title"><i class="fas fa-phone"></i> Contact Details</h3>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="field-group">
-                            <label class="field-label">Mobile Number</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['mobile_number']); ?></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="field-group">
-                            <label class="field-label">Email ID</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['email_id']); ?></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="field-group">
-                            <label class="field-label">City</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['city'] ?? 'N/A'); ?></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="field-group">
-                            <label class="field-label">State</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['state'] ?? 'N/A'); ?></div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="field-group">
-                            <label class="field-label">Permanent Address</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['permanent_address'] ?? 'N/A'); ?></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECTION 3: ACADEMIC DETAILS -->
-            <div class="section-card">
-                <h3 class="section-title"><i class="fas fa-book"></i> Academic Details</h3>
-                <div class="row">
-                    <div class="col-md-6">
-                        <h5 style="color: #667eea; font-weight: 700; margin-bottom: 15px;">📚 12th Class</h5>
-                        <div class="field-group">
-                            <label class="field-label">School Name</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['class_12_school'] ?? 'N/A'); ?></div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Board</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['class_12_board'] ?? 'N/A'); ?></div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Percentage</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['class_12_percentage'] ?? 'N/A'); ?>%</div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <h5 style="color: #667eea; font-weight: 700; margin-bottom: 15px;">🎯 Entrance Exam</h5>
-                        <div class="field-group">
-                            <label class="field-label">Exam Type</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['entrance_exam_type'] ?? 'N/A'); ?></div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Score</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['entrance_exam_score'] ?? 'N/A'); ?></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECTION 4: COURSE SELECTION -->
-            <div class="section-card">
-                <h3 class="section-title"><i class="fas fa-graduation-cap"></i> Course Selection</h3>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="field-group">
-                            <label class="field-label">Degree Type</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['degree_type'] ?? 'N/A'); ?></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="field-group">
-                            <label class="field-label">Department</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['course_department'] ?? 'N/A'); ?></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="field-group">
-                            <label class="field-label">Specialization</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['preferred_specialization'] ?? 'N/A'); ?></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="field-group">
-                            <label class="field-label">Admission Type</label>
-                            <div class="field-value"><?php echo htmlspecialchars($selectedStudent['admission_type'] ?? 'N/A'); ?></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- APPLICATION STATUS -->
-            <div class="section-card" style="border-left-color: #2ecc71;">
-                <h3 class="section-title" style="color: #2ecc71;"><i class="fas fa-check-circle"></i> Application Status</h3>
-                <div style="padding: 15px; text-align: center; background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, rgba(39, 174, 96, 0.05) 100%); border-radius: 8px;">
-                    <div style="font-size: 1.3rem; font-weight: bold; color: #2ecc71; margin-bottom: 10px;">
-                        <i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($selectedStudent['application_status']); ?>
-                    </div>
-                    <small style="color: #666;">
-                        Submitted on: <?php echo date('d M Y, H:i A', strtotime($selectedStudent['created_at'])); ?>
-                    </small>
-                </div>
-            </div>
-
-            <!-- ACTION BUTTONS -->
-            <div style="text-align: center; margin-top: 25px;">
-                <button class="btn btn-warning btn-lg" data-bs-toggle="modal" data-bs-target="#editDeptModalFull" style="margin-right: 10px;">
-                    <i class="fas fa-edit"></i> Change Department
-                </button>
-                <?php if ($selectedStudent['application_status'] == 'Submitted'): ?>
-                    <form method="POST" action="" style="display: inline;">
-                        <input type="hidden" name="student_id" value="<?php echo $selectedStudent['id']; ?>">
-                        <button type="submit" name="confirm_admission" class="btn btn-success btn-lg" onclick="return confirm('Confirm admission for this student?');">
-                            <i class="fas fa-check"></i> Confirm Admission
-                        </button>
-                    </form>
-                <?php else: ?>
-                    <div class="btn btn-success btn-lg disabled">
-                        <i class="fas fa-check-circle"></i> Already Confirmed
-                    </div>
-                <?php endif; ?>
-            </div>
-
-            <!-- EDIT DEPARTMENT MODAL -->
-            <div class="modal fade" id="editDeptModalFull" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title"><i class="fas fa-edit"></i> Change Department</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                        </div>
-                        <form method="POST" action="">
-                            <div class="modal-body">
-                                <p style="margin-bottom: 15px;">
-                                    <strong>Student:</strong> <?php echo htmlspecialchars($selectedStudent['full_name']); ?><br>
-                                    <strong>Current Department:</strong> <?php echo htmlspecialchars($selectedStudent['course_department'] ?? 'N/A'); ?>
-                                </p>
-                                <div class="form-group">
-                                    <label class="form-label" style="font-weight: 600;">Select New Department</label>
-                                    <select name="new_department" class="form-select" required>
-                                        <option value="">-- Choose Department --</option>
-                                        <?php foreach ($departments as $dept): ?>
-                                            <option value="<?php echo htmlspecialchars($dept); ?>" 
-                                                    <?php echo $dept == $selectedStudent['course_department'] ? 'selected' : ''; ?>>
-                                                <?php echo htmlspecialchars($dept); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
+                <!-- SECTION 1: PERSONAL DETAILS -->
+                <div class="section-card">
+                    <h3 class="section-title"><i class="fas fa-user"></i> Personal Details</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" name="full_name" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['full_name']); ?>" required>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <input type="hidden" name="student_id" value="<?php echo $selectedStudent['id']; ?>">
-                                <button type="submit" name="update_department" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Update Department
-                                </button>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Date of Birth</label>
+                                <input type="date" name="date_of_birth" class="form-control" value="<?php echo $selectedStudent['date_of_birth']; ?>">
                             </div>
-                        </form>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Gender</label>
+                                <select name="gender" class="form-select">
+                                    <option value="Male" <?php echo $selectedStudent['gender'] == 'Male' ? 'selected' : ''; ?>>Male</option>
+                                    <option value="Female" <?php echo $selectedStudent['gender'] == 'Female' ? 'selected' : ''; ?>>Female</option>
+                                    <option value="Other" <?php echo $selectedStudent['gender'] == 'Other' ? 'selected' : ''; ?>>Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Nationality</label>
+                                <input type="text" name="nationality" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['nationality'] ?? 'Indian'); ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Religion</label>
+                                <input type="text" name="religion" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['religion'] ?? ''); ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Community/Category</label>
+                                <select name="community" class="form-select">
+                                    <option value="General" <?php echo $selectedStudent['community'] == 'General' ? 'selected' : ''; ?>>General</option>
+                                    <option value="OC" <?php echo $selectedStudent['community'] == 'OC' ? 'selected' : ''; ?>>OC</option>
+                                    <option value="BC" <?php echo $selectedStudent['community'] == 'BC' ? 'selected' : ''; ?>>BC</option>
+                                    <option value="BCM" <?php echo $selectedStudent['community'] == 'BCM' ? 'selected' : ''; ?>>BCM</option>
+                                    <option value="MBC/DNC" <?php echo $selectedStudent['community'] == 'MBC/DNC' ? 'selected' : ''; ?>>MBC/DNC</option>
+                                    <option value="SC" <?php echo $selectedStudent['community'] == 'SC' ? 'selected' : ''; ?>>SC</option>
+                                    <option value="SCA" <?php echo $selectedStudent['community'] == 'SCA' ? 'selected' : ''; ?>>SCA</option>
+                                    <option value="ST" <?php echo $selectedStudent['community'] == 'ST' ? 'selected' : ''; ?>>ST</option>
+                                    <option value="Other" <?php echo $selectedStudent['community'] == 'Other' ? 'selected' : ''; ?>>Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="community_other_container_view" style="display: <?php echo $selectedStudent['community'] == 'Other' ? 'block' : 'none'; ?>;">
+                            <div class="mb-3">
+                                <label class="form-label">Specify Other Community</label>
+                                <input type="text" name="community_other" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['community_other'] ?? ''); ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Aadhaar Number</label>
+                                <input type="text" name="aadhaar_number" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['aadhaar_number'] ?? ''); ?>" pattern="[0-9]{12}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Blood Group</label>
+                                <input type="text" name="blood_group" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['blood_group'] ?? ''); ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">First Graduate</label>
+                                <select name="first_graduate" class="form-select">
+                                    <option value="Yes" <?php echo ($selectedStudent['first_graduate'] ?? '') == 'Yes' ? 'selected' : ''; ?>>Yes</option>
+                                    <option value="No" <?php echo ($selectedStudent['first_graduate'] ?? '') == 'No' ? 'selected' : ''; ?>>No</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+
+                <!-- SECTION 2: CONTACT DETAILS -->
+                <div class="section-card">
+                    <h3 class="section-title"><i class="fas fa-phone"></i> Contact Details</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Mobile Number *</label>
+                                <input type="tel" name="mobile_number" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['mobile_number']); ?>" pattern="[0-9]{10}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Email ID *</label>
+                                <input type="email" name="email_id" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['email_id']); ?>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">City</label>
+                                <input type="text" name="city" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['city'] ?? ''); ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">State</label>
+                                <input type="text" name="state" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['state'] ?? ''); ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Pincode</label>
+                                <input type="text" name="pincode" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['pincode'] ?? ''); ?>" pattern="[0-9]{6}">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Permanent Address</label>
+                                <textarea name="permanent_address" class="form-control" rows="3"><?php echo htmlspecialchars($selectedStudent['permanent_address'] ?? ''); ?></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Alternate Mobile</label>
+                                <input type="text" name="alternate_mobile" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['alternate_mobile'] ?? ''); ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Current Address</label>
+                                <textarea name="current_address" class="form-control" rows="3"><?php echo htmlspecialchars($selectedStudent['current_address'] ?? ''); ?></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PARENT/GUARDIAN DETAILS -->
+                <div class="section-card">
+                    <h3 class="section-title"><i class="fas fa-users"></i> Parent / Guardian Details</h3>
+                    <div class="row">
+                        <div class="col-md-6"><div class="mb-3"><label class="form-label">Father's Name</label><input type="text" name="father_name" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['father_name'] ?? ''); ?>"></div></div>
+                        <div class="col-md-6"><div class="mb-3"><label class="form-label">Mother's Name</label><input type="text" name="mother_name" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['mother_name'] ?? ''); ?>"></div></div>
+                        <div class="col-md-6"><div class="mb-3"><label class="form-label">Guardian Name</label><input type="text" name="guardian_name" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['guardian_name'] ?? ''); ?>"></div></div>
+                        <div class="col-md-6"><div class="mb-3"><label class="form-label">Parent Occupation</label><input type="text" name="parent_occupation" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['parent_occupation'] ?? ''); ?>"></div></div>
+                        <div class="col-md-6"><div class="mb-3"><label class="form-label">Parent Mobile</label><input type="text" name="parent_mobile" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['parent_mobile'] ?? ''); ?>"></div></div>
+                        <div class="col-md-6"><div class="mb-3"><label class="form-label">Parent Email</label><input type="email" name="parent_email" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['parent_email'] ?? ''); ?>"></div></div>
+                        <div class="col-md-6"><div class="mb-3"><label class="form-label">Annual Family Income</label><input type="number" name="annual_family_income" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['annual_family_income'] ?? '0'); ?>"></div></div>
+                    </div>
+                </div>
+
+                <!-- 10th CLASS DETAILS -->
+                <div class="section-card">
+                    <h3 class="section-title"><i class="fas fa-book"></i> 10th Academic Details</h3>
+                    <div class="row">
+                        <div class="col-md-6"><div class="mb-3"><label class="form-label">School Name</label><input type="text" name="class_10_school" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['class_10_school'] ?? ''); ?>"></div></div>
+                        <div class="col-md-6"><div class="mb-3"><label class="form-label">Board</label><input type="text" name="class_10_board" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['class_10_board'] ?? ''); ?>"></div></div>
+                        <div class="col-md-6"><div class="mb-3"><label class="form-label">Register Number</label><input type="text" name="class_10_register_number" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['class_10_register_number'] ?? ''); ?>"></div></div>
+                        <div class="col-md-6"><div class="mb-3"><label class="form-label">Percentage</label><input type="number" step="0.01" name="class_10_percentage" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['class_10_percentage'] ?? '0'); ?>"></div></div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: ACADEMIC DETAILS -->
+                <div class="section-card">
+                    <h3 class="section-title"><i class="fas fa-book"></i> Academic Details</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 style="color: #667eea; font-weight: 700; margin-bottom: 15px;">📚 12th Class</h5>
+                            <div class="mb-3">
+                                <label class="form-label">School Name</label>
+                                <input type="text" name="class_12_school" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['class_12_school'] ?? ''); ?>">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Board</label>
+                                <select name="class_12_board" class="form-select">
+                                    <option value="State Board" <?php echo ($selectedStudent['class_12_board'] ?? 'State Board') == 'State Board' ? 'selected' : ''; ?>>State Board</option>
+                                    <option value="CBSE" <?php echo ($selectedStudent['class_12_board'] ?? '') == 'CBSE' ? 'selected' : ''; ?>>CBSE</option>
+                                    <option value="ICSE" <?php echo ($selectedStudent['class_12_board'] ?? '') == 'ICSE' ? 'selected' : ''; ?>>ICSE</option>
+                                    <option value="IB" <?php echo ($selectedStudent['class_12_board'] ?? '') == 'IB' ? 'selected' : ''; ?>>IB</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Percentage</label>
+                                <input type="number" step="0.01" name="class_12_percentage" class="form-control" value="<?php echo $selectedStudent['class_12_percentage'] ?? ''; ?>">
+                            </div>
+                            <div class="mb-3"><label class="form-label">Register Number</label><input type="text" name="class_12_register_number" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['class_12_register_number'] ?? ''); ?>"></div>
+                            <div class="mb-3"><label class="form-label">Subjects Studied</label><input type="text" name="class_12_subjects" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['class_12_subjects'] ?? ''); ?>"></div>
+                            <div class="mb-3"><label class="form-label">Subject 1 Marks</label><input type="number" step="0.01" name="class_12_subject_1_marks" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['class_12_subject_1_marks'] ?? ''); ?>"></div>
+                            <div class="mb-3"><label class="form-label">Subject 2 Marks</label><input type="number" step="0.01" name="class_12_subject_2_marks" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['class_12_subject_2_marks'] ?? ''); ?>"></div>
+                            <div class="mb-3"><label class="form-label">Subject 3 Marks</label><input type="number" step="0.01" name="class_12_subject_3_marks" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['class_12_subject_3_marks'] ?? ''); ?>"></div>
+                            <div class="mb-3"><label class="form-label">Subject 4 Marks</label><input type="number" step="0.01" name="class_12_subject_4_marks" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['class_12_subject_4_marks'] ?? ''); ?>"></div>
+                            <div class="mb-3"><label class="form-label">Subject 5 Marks</label><input type="number" step="0.01" name="class_12_subject_5_marks" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['class_12_subject_5_marks'] ?? ''); ?>"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 style="color: #667eea; font-weight: 700; margin-bottom: 15px;">🎯 Entrance Exam</h5>
+                            <div class="mb-3">
+                                <label class="form-label">Exam Type</label>
+                                <input type="text" name="entrance_exam_type" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['entrance_exam_type'] ?? ''); ?>">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Score</label>
+                                <input type="text" name="entrance_exam_score" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['entrance_exam_score'] ?? ''); ?>">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 4: COURSE SELECTION & STATUS -->
+                <div class="section-card">
+                    <h3 class="section-title"><i class="fas fa-graduation-cap"></i> Course Selection & Status</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Degree Type</label>
+                                <input type="text" name="degree_type" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['degree_type'] ?? ''); ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Department *</label>
+                                <select name="course_department" class="form-select" required>
+                                    <option value="">-- Select Department --</option>
+                                    <?php foreach ($departments as $dept): ?>
+                                        <option value="<?php echo htmlspecialchars($dept); ?>" 
+                                                <?php echo $dept == ($selectedStudent['course_department'] ?? '') ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($dept); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Specialization</label>
+                                <input type="text" name="preferred_specialization" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['preferred_specialization'] ?? ''); ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Programme Choice</label>
+                                <input type="text" name="programme_choice" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['programme_choice'] ?? ''); ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Admission Type</label>
+                                <input type="text" name="admission_type" class="form-control" value="<?php echo htmlspecialchars($selectedStudent['admission_type'] ?? ''); ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Application Status *</label>
+                                <select name="application_status" class="form-select" required>
+                                    <option value="Enquiry" <?php echo $selectedStudent['application_status'] == 'Enquiry' ? 'selected' : ''; ?>>Enquiry</option>
+                                    <option value="Payment Pending" <?php echo $selectedStudent['application_status'] == 'Payment Pending' ? 'selected' : ''; ?>>Payment Pending</option>
+                                    <option value="Confirmed" <?php echo $selectedStudent['application_status'] == 'Confirmed' ? 'selected' : ''; ?>>Confirmed</option>
+                                    <option value="Rejected" <?php echo $selectedStudent['application_status'] == 'Rejected' ? 'selected' : ''; ?>>Rejected</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 5: ADDITIONAL INFO -->
+                <div class="section-card">
+                    <h3 class="section-title"><i class="fas fa-info-circle"></i> Additional Information</h3>
+                    <div class="row">
+                        <div class="col-md-6"><div class="mb-3"><label class="form-label">Hostel Requirement</label><select name="hostel_requirement" class="form-select"><option value="No" <?php echo ($selectedStudent['hostel_requirement']??'')=='No'?'selected':''; ?>>No</option><option value="Yes" <?php echo ($selectedStudent['hostel_requirement']??'')=='Yes'?'selected':''; ?>>Yes</option></select></div></div>
+                        <div class="col-md-6"><div class="mb-3"><label class="form-label">Transport Requirement</label><select name="transport_requirement" class="form-select"><option value="No" <?php echo ($selectedStudent['transport_requirement']??'')=='No'?'selected':''; ?>>No</option><option value="Yes" <?php echo ($selectedStudent['transport_requirement']??'')=='Yes'?'selected':''; ?>>Yes</option></select></div></div>
+                        <div class="col-md-12"><div class="mb-3"><label class="form-label">Scholarship Details</label><textarea name="scholarship_details" class="form-control" rows="2"><?php echo htmlspecialchars($selectedStudent['scholarship_details'] ?? ''); ?></textarea></div></div>
+                        <div class="col-md-12"><div class="mb-3"><label class="form-label">Sports Achievements</label><textarea name="sports_achievements" class="form-control" rows="2"><?php echo htmlspecialchars($selectedStudent['sports_achievements'] ?? ''); ?></textarea></div></div>
+                        <div class="col-md-12"><div class="mb-3"><label class="form-label">Medical Information</label><textarea name="medical_information" class="form-control" rows="2"><?php echo htmlspecialchars($selectedStudent['medical_information'] ?? ''); ?></textarea></div></div>
+                    </div>
+                </div>
+
+                <!-- SAVE BUTTONS -->
+                <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                    <button type="submit" name="update_full_student" class="btn btn-success btn-lg" style="margin-right: 15px;">
+                        <i class="fas fa-save"></i> Save All Changes
+                    </button>
+                    <a href="?tab=students" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
 
         <?php endif; ?>
 
@@ -786,6 +1015,46 @@ if ($feeResult && $feeResult->num_rows > 0) {
                 const bsAlert = new bootstrap.Alert(alert);
                 bsAlert.close();
             }, 5000);
+        });
+
+        // Handle community "Other" field toggle in edit modals and view form
+        document.addEventListener('change', function(e) {
+            if (e.target.name === 'community') {
+                // Handle view form
+                if (e.target.closest('form') && !e.target.closest('.modal')) {
+                    const otherContainer = document.getElementById('community_other_container_view');
+                    const otherInput = otherContainer ? otherContainer.querySelector('input[name="community_other"]') : null;
+                    
+                    if (otherContainer && otherInput) {
+                        if (e.target.value === 'Other') {
+                            otherContainer.style.display = 'block';
+                            otherInput.required = true;
+                        } else {
+                            otherContainer.style.display = 'none';
+                            otherInput.required = false;
+                            otherInput.value = '';
+                        }
+                    }
+                }
+                // Handle modal forms
+                else {
+                    const form = e.target.closest('form');
+                    const studentId = form.querySelector('input[name="student_id"]').value;
+                    const otherContainer = document.getElementById('community_other_container' + studentId);
+                    const otherInput = otherContainer ? otherContainer.querySelector('input[name="community_other"]') : null;
+                    
+                    if (otherContainer && otherInput) {
+                        if (e.target.value === 'Other') {
+                            otherContainer.style.display = 'block';
+                            otherInput.required = true;
+                        } else {
+                            otherContainer.style.display = 'none';
+                            otherInput.required = false;
+                            otherInput.value = '';
+                        }
+                    }
+                }
+            }
         });
     });
 </script>

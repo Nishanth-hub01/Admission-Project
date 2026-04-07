@@ -40,16 +40,20 @@
                             <td>
                                 <?php 
                                 $statusColor = 'secondary';
-                                if ($student['application_status'] == 'Approved') {
+                                $statusText = $student['application_status'];
+                                
+                                if ($student['application_status'] == 'Confirmed') {
                                     $statusColor = 'success';
                                 } elseif ($student['application_status'] == 'Rejected') {
                                     $statusColor = 'danger';
-                                } elseif ($student['application_status'] == 'Submitted') {
-                                    $statusColor = 'info';
+                                } elseif ($student['application_status'] == 'Payment Pending') {
+                                    $statusColor = 'warning';
+                                } elseif ($student['application_status'] == 'Enquiry') {
+                                    $statusColor = 'primary';
                                 }
                                 ?>
                                 <span class="badge bg-<?php echo $statusColor; ?>">
-                                    <?php echo htmlspecialchars($student['application_status']); ?>
+                                    <?php echo htmlspecialchars($statusText); ?>
                                 </span>
                             </td>
                             <td>

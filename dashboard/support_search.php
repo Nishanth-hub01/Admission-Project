@@ -12,7 +12,7 @@
                 <label class="form-label" style="font-weight: 600;">Admission ID</label>
                 <input type="text" name="admission_id" class="form-control" 
                        placeholder="Enter Admission ID (e.g., SI1003001)" 
-                       pattern="^SI\d{8}$" 
+                       pattern="^SI\d{7}$" 
                        style="font-family: 'Courier New', monospace; text-transform: uppercase; letter-spacing: 1px;"
                        required>
                 <small style="color: #999; display: block; margin-top: 8px;">

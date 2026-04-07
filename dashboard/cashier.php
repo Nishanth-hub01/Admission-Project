@@ -25,6 +25,7 @@ $sql = "SELECT
     s.email_id,
     s.mobile_number,
     s.course_department,
+    s.application_status,
     p.total_fee,
     p.paid_amount,
     p.payment_status,
@@ -32,6 +33,7 @@ $sql = "SELECT
     p.created_at
 FROM payments p
 INNER JOIN students s ON p.student_id = s.id
+WHERE s.application_status IN ('Payment Pending', 'Confirmed')
 ORDER BY p.created_at DESC";
 
 $result = $conn->query($sql);
@@ -47,25 +49,47 @@ if ($result && $result->num_rows > 0) {
 // ============================================
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_payment'])) {
     $payment_id = (int)$_POST['payment_id'];
-    $paid_amount = (float)$_POST['paid_amount'];
+    $additional_amount = (float)$_POST['paid_amount'];
     $payment_status = $conn->real_escape_string($_POST['payment_status']);
     
     // Get current payment record
-    $checkPayment = $conn->query("SELECT total_fee FROM payments WHERE id = $payment_id");
+    $checkPayment = $conn->query("SELECT total_fee, paid_amount, student_id FROM payments WHERE id = $payment_id");
     if ($checkPayment && $checkPayment->num_rows > 0) {
         $payment = $checkPayment->fetch_assoc();
         
-        if ($paid_amount > $payment['total_fee']) {
-            $error = "❌ Paid amount cannot exceed total fee!";
+        $new_total_paid = $payment['paid_amount'] + $additional_amount;
+        
+        if ($new_total_paid > $payment['total_fee']) {
+            $error = "❌ Total paid amount (₹" . number_format($new_total_paid, 2) . ") cannot exceed total fee (₹" . number_format($payment['total_fee'], 2) . ")!";
         } else {
-            $sql = "UPDATE payments SET paid_amount = $paid_amount, payment_status = '$payment_status', payment_date = NOW() WHERE id = $payment_id";
+            $sql = "UPDATE payments SET paid_amount = $new_total_paid, payment_status = '$payment_status', payment_date = NOW() WHERE id = $payment_id";
             
             if ($conn->query($sql)) {
-                $success = "✅ Payment updated successfully!";
+                $success = "✅ Payment of ₹" . number_format($additional_amount, 2) . " added successfully! Total paid: ₹" . number_format($new_total_paid, 2);
             } else {
                 $error = "❌ Error updating payment: " . $conn->error;
             }
         }
+    }
+}
+
+// ============================================
+// HANDLE APPLICATION STATUS UPDATE
+// ============================================
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_app_status'])) {
+    $student_id = (int)$_POST['student_id'];
+    $app_status = $conn->real_escape_string($_POST['application_status']);
+    
+    $updateStudentSql = "UPDATE students SET application_status = '$app_status'";
+    if ($app_status == 'Confirmed') {
+        $updateStudentSql .= ", admission_confirmed_date = NOW()";
+    }
+    $updateStudentSql .= " WHERE id = $student_id";
+    
+    if ($conn->query($updateStudentSql)) {
+        $success = "✅ Status updated successfully!";
+    } else {
+        $error = "❌ Error updating status: " . $conn->error;
     }
 }
 
@@ -88,10 +112,10 @@ if (isset($_GET['generate_receipt'])) {
 // ============================================
 // GET STATISTICS
 // ============================================
-$totalPayments = $conn->query("SELECT SUM(paid_amount) as total FROM payments WHERE payment_status = 'Paid'")->fetch_assoc()['total'] ?? 0;
-$totalPending = $conn->query("SELECT SUM(total_fee - paid_amount) as total FROM payments WHERE payment_status = 'Pending'")->fetch_assoc()['total'] ?? 0;
-$totalStudents = $conn->query("SELECT COUNT(*) as count FROM payments")->fetch_assoc()['count'];
-$paidCount = $conn->query("SELECT COUNT(*) as count FROM payments WHERE payment_status = 'Paid'")->fetch_assoc()['count'];
+$totalPayments = $conn->query("SELECT SUM(p.paid_amount) as total FROM payments p INNER JOIN students s ON p.student_id = s.id WHERE s.application_status IN ('Payment Pending', 'Confirmed')")->fetch_assoc()['total'] ?? 0;
+$totalPending = $conn->query("SELECT SUM(p.total_fee - p.paid_amount) as total FROM payments p INNER JOIN students s ON p.student_id = s.id WHERE s.application_status IN ('Payment Pending', 'Confirmed')")->fetch_assoc()['total'] ?? 0;
+$totalStudents = $conn->query("SELECT COUNT(*) as count FROM payments p INNER JOIN students s ON p.student_id = s.id WHERE s.application_status IN ('Payment Pending', 'Confirmed')")->fetch_assoc()['count'] ?? 0;
+$paidCount = $conn->query("SELECT COUNT(*) as count FROM payments p INNER JOIN students s ON p.student_id = s.id WHERE p.payment_status = 'Paid' AND s.application_status IN ('Payment Pending', 'Confirmed')")->fetch_assoc()['count'] ?? 0;
 $pendingCount = $totalStudents - $paidCount;
 
 ?>
@@ -167,20 +191,20 @@ $pendingCount = $totalStudents - $paidCount;
         }
         
         .field-label {
-            color: #333;
-            font-weight: 600;
+            color: #1a202c;
+            font-weight: 700;
             margin-bottom: 8px;
             display: block;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
         
         .field-value {
-            color: #555;
+            color: #2d3748;
             padding: 12px 15px;
-            background: #f8f9fa;
+            background: #edf2f7;
             border-radius: 6px;
-            border-left: 3px solid #667eea;
-            font-weight: 500;
+            border-left: 4px solid #667eea;
+            font-weight: 600;
         }
         
         .receipt-box {
@@ -324,14 +348,14 @@ $pendingCount = $totalStudents - $paidCount;
         <?php if ($currentTab == 'dashboard'): ?>
             <div class="section-card">
                 <h3 class="section-title"><i class="fas fa-chart-bar"></i> Welcome to Cashier Dashboard</h3>
-                <p style="color: #666; line-height: 1.8; margin: 15px 0;">
+                <p style="color: #1a202c; line-height: 1.8; margin: 15px 0; font-weight: 500;">
                     As a cashier, you can manage student fee payments, update payment status, and generate payment receipts.
                 </p>
-                <ul style="color: #666; line-height: 1.8; padding-left: 20px; margin-top: 15px;">
-                    <li><strong>💰 Record Payments:</strong> Update student payments and mark them as paid</li>
-                    <li><strong>📋 View All Payments:</strong> See complete payment details for all students</li>
-                    <li><strong>🧾 Generate Receipts:</strong> Create payment receipts for students</li>
-                    <li><strong>📊 Payment Statistics:</strong> Track payment collection and pending amounts</li>
+                <ul style="color: #2d3748; line-height: 1.8; padding-left: 20px; margin-top: 15px; font-weight: 500;">
+                    <li><strong style="color: #1a202c;">💰 Record Payments:</strong> Update student payments and mark them as paid</li>
+                    <li><strong style="color: #1a202c;">📋 View All Payments:</strong> See complete payment details for all students</li>
+                    <li><strong style="color: #1a202c;">🧾 Generate Receipts:</strong> Create payment receipts for students</li>
+                    <li><strong style="color: #1a202c;">📊 Payment Statistics:</strong> Track payment collection and pending amounts</li>
                 </ul>
             </div>
 
@@ -352,8 +376,19 @@ $pendingCount = $totalStudents - $paidCount;
                         <h5 style="color: #667eea; font-weight: 700; margin-bottom: 15px;">
                             <i class="fas fa-info-circle"></i> Payment Summary
                         </h5>
-                        <p style="margin: 10px 0;"><strong>Total Students:</strong> <span style="color: #667eea; font-size: 1.2rem; font-weight: bold;"><?php echo $totalStudents; ?></span></p>
-                        <p style="margin: 10px 0;"><strong>Amount Pending:</strong> <span style="color: #f39c12; font-size: 1.2rem; font-weight: bold;">₹<?php echo number_format($totalPending, 0); ?></span></p>
+                        <p style="margin: 12px 0; color: #1a202c; font-size: 1.1rem;">
+                            <strong>Total Collected:</strong> 
+                            <span style="color: #16a34a; font-size: 1.4rem; font-weight: 800; text-shadow: 0 0 1px #86efac;">₹<?php echo number_format($totalPayments, 0); ?></span>
+                        </p>
+                        <p style="margin: 12px 0; color: #1a202c; font-size: 1.1rem;">
+                            <strong>Amount Pending:</strong> 
+                            <span style="color: #ea580c; font-size: 1.4rem; font-weight: 800; text-shadow: 0 0 1px #fdba74;">₹<?php echo number_format($totalPending, 0); ?></span>
+                        </p>
+                        <hr style="opacity: 0.1; margin: 15px 0;">
+                        <p style="margin: 10px 0; color: #4a5568;">
+                            <strong>Total Students:</strong> 
+                            <span style="color: #667eea; font-weight: 700;"><?php echo $totalStudents; ?></span>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -387,10 +422,10 @@ $pendingCount = $totalStudents - $paidCount;
                                             </code>
                                         </td>
                                         <td><strong><?php echo htmlspecialchars($payment['full_name']); ?></strong></td>
-                                        <td><?php echo htmlspecialchars($payment['mobile_number']); ?></td>
-                                        <td>₹<?php echo number_format($payment['total_fee'], 0); ?></td>
-                                        <td style="color: #2ecc71; font-weight: 600;">₹<?php echo number_format($payment['paid_amount'], 0); ?></td>
-                                        <td style="color: #f39c12; font-weight: 600;">₹<?php echo number_format($payment['total_fee'] - $payment['paid_amount'], 0); ?></td>
+                                        <td style="color: #2d3748;"><?php echo htmlspecialchars($payment['mobile_number']); ?></td>
+                                        <td style="color: #1a202c; font-weight: 500;">₹<?php echo number_format($payment['total_fee'], 0); ?></td>
+                                        <td style="color: #166534; font-weight: 700;">₹<?php echo number_format($payment['paid_amount'], 0); ?></td>
+                                        <td style="color: #c53030; font-weight: 700;">₹<?php echo number_format($payment['total_fee'] - $payment['paid_amount'], 0); ?></td>
                                         <td>
                                             <?php 
                                             $statusColor = $payment['payment_status'] == 'Paid' ? 'success' : 'warning';
@@ -403,6 +438,10 @@ $pendingCount = $totalStudents - $paidCount;
                                             <button class="btn btn-sm btn-primary" data-bs-toggle="modal" 
                                                     data-bs-target="#paymentModal<?php echo $payment['id']; ?>">
                                                 <i class="fas fa-edit"></i> Update
+                                            </button>
+                                            <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal" 
+                                                    data-bs-target="#statusModal<?php echo $payment['id']; ?>">
+                                                <i class="fas fa-exchange-alt"></i> Status
                                             </button>
                                             <a href="?tab=receipt&generate_receipt=<?php echo $payment['id']; ?>" class="btn btn-sm btn-success">
                                                 <i class="fas fa-receipt"></i> Receipt
@@ -419,18 +458,26 @@ $pendingCount = $totalStudents - $paidCount;
                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                 </div>
                                                 <form method="POST" action="">
-                                                    <div class="modal-body">
-                                                        <p style="margin-bottom: 15px;">
-                                                            <strong>Student:</strong> <?php echo htmlspecialchars($payment['full_name']); ?><br>
-                                                            <strong>Total Fee:</strong> ₹<?php echo number_format($payment['total_fee'], 0); ?>
-                                                        </p>
+                                                     <div class="modal-body">
+                                                        <div style="margin-bottom: 20px; background: #ebf4ff; padding: 15px; border-radius: 10px; border-left: 5px solid #667eea;">
+                                                            <div style="color: #2c3e50; font-size: 1.1rem; margin-bottom: 10px;"><strong>Student:</strong> <?php echo htmlspecialchars($payment['full_name']); ?></div>
+                                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                                                <div style="color: #1a202c;"><strong>Total Fee:</strong><br><span style="font-size: 1.2rem;">₹<?php echo number_format($payment['total_fee'], 0); ?></span></div>
+                                                                <div style="color: #166534;"><strong>Already Paid:</strong><br><span style="font-size: 1.2rem; font-weight: 700;">₹<?php echo number_format($payment['paid_amount'], 0); ?></span></div>
+                                                                <div style="color: #c53030; grid-column: span 2; border-top: 1px solid #cbd5e0; padding-top: 10px; margin-top: 5px;">
+                                                                    <strong>Remaining Balance:</strong> <span style="font-size: 1.3rem; font-weight: 800;">₹<?php echo number_format($payment['total_fee'] - $payment['paid_amount'], 0); ?></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                         
-                                                        <div class="form-group mb-3">
-                                                            <label class="field-label">Paid Amount</label>
-                                                            <input type="number" name="paid_amount" class="form-control" 
-                                                                   value="<?php echo $payment['paid_amount']; ?>" 
-                                                                   min="0" max="<?php echo $payment['total_fee']; ?>" 
+                                                        <div class="form-group mb-4">
+                                                            <label class="field-label" style="font-size: 1.1rem; color: #1a202c;">💰 Amount to Pay Now (Additional)</label>
+                                                            <input type="number" name="paid_amount" class="form-control form-control-lg" 
+                                                                   value="0" 
+                                                                   min="0" max="<?php echo $payment['total_fee'] - $payment['paid_amount']; ?>" 
+                                                                   style="border: 2px solid #667eea; font-weight: 700; font-size: 1.25rem; color: #1a202c;"
                                                                    step="0.01" required>
+                                                            <small style="color: #4a5568; font-weight: 500;">Enter the exact amount collected from the student right now.</small>
                                                         </div>
 
                                                         <div class="form-group mb-3">
@@ -440,12 +487,46 @@ $pendingCount = $totalStudents - $paidCount;
                                                                 <option value="Paid" <?php echo $payment['payment_status'] == 'Paid' ? 'selected' : ''; ?>>Paid</option>
                                                             </select>
                                                         </div>
+
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                                         <input type="hidden" name="payment_id" value="<?php echo $payment['id']; ?>">
                                                         <button type="submit" name="update_payment" class="btn btn-primary">
                                                             <i class="fas fa-save"></i> Update Payment
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- APPLICATION STATUS UPDATE MODAL -->
+                                    <div class="modal fade" id="statusModal<?php echo $payment['id']; ?>" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header" style="background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%); color: white;">
+                                                    <h5 class="modal-title"><i class="fas fa-exchange-alt"></i> Update Status</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form method="POST" action="">
+                                                    <div class="modal-body">
+                                                        <p style="margin-bottom: 15px;">
+                                                            <strong>Student:</strong> <?php echo htmlspecialchars($payment['full_name']); ?>
+                                                        </p>
+                                                        <div class="form-group mb-3">
+                                                            <label class="field-label">Student Application Status</label>
+                                                            <select name="application_status" class="form-select" required>
+                                                                <option value="Payment Pending" <?php echo ($payment['application_status'] ?? '') == 'Payment Pending' ? 'selected' : ''; ?>>Payment Pending</option>
+                                                                <option value="Confirmed" <?php echo ($payment['application_status'] ?? '') == 'Confirmed' ? 'selected' : ''; ?>>Confirmed</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <input type="hidden" name="student_id" value="<?php echo $payment['student_id']; ?>">
+                                                        <button type="submit" name="update_app_status" class="btn btn-info" style="color: white;">
+                                                            <i class="fas fa-save"></i> Update Status
                                                         </button>
                                                     </div>
                                                 </form>

@@ -51,13 +51,19 @@
             <div class="col-md-6">
                 <div class="field-group">
                     <label class="field-label">Community/Category <span style="color: #e74c3c;">*</span></label>
-                    <select name="community" class="form-select" required>
+                    <select name="community" class="form-select" required id="community_select">
                         <option value="">Select Category</option>
                         <option value="General">General</option>
-                        <option value="OBC">OBC</option>
+                        <option value="OC">OC</option>
+                        <option value="BC">BC</option>
+                        <option value="BCM">BCM</option>
+                        <option value="MBC/DNC">MBC/DNC</option>
                         <option value="SC">SC</option>
+                        <option value="SCA">SCA</option>
                         <option value="ST">ST</option>
+                        <option value="Other">Other</option>
                     </select>
+                    <input type="text" name="community_other" id="community_other" class="form-control mt-2" placeholder="Please specify other category" style="display: none;">
                 </div>
             </div>
             <div class="col-md-6">
@@ -159,7 +165,7 @@
                     <textarea name="current_address" id="current_address" class="form-control" rows="3" placeholder="Enter complete current address"></textarea>
                     <div class="form-check mt-2">
                         <input class="form-check-input" type="checkbox" id="same_address_checkbox">
-                        <label class="form-check-label" for="same_address_checkbox">
+                        <label class="form-check-label" for="same_address_checkbox" style="color: #495057;">
                             Same as Permanent Address
                         </label>
                     </div>
@@ -212,6 +218,12 @@
                 <div class="field-group">
                     <label class="field-label">Annual Family Income</label>
                     <input type="number" name="annual_family_income" class="form-control" placeholder="Annual income in rupees">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="field-group">
+                    <label class="field-label">Income Certificate</label>
+                    <input type="file" name="income_certificate" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                 </div>
             </div>
         </div>
@@ -338,6 +350,12 @@
                 <div class="field-group">
                     <label class="field-label">Marksheet</label>
                     <input type="file" name="class_12_marksheet" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="field-group">
+                    <label class="field-label">Transfer Certificate</label>
+                    <input type="file" name="transfer_certificate" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                 </div>
             </div>
         </div>
@@ -624,6 +642,19 @@
         } else {
             container.style.display = 'none';
             document.querySelector('input[name="first_graduate_certificate"]').value = '';
+        }
+    });
+
+    // Community Other field toggle
+    document.getElementById('community_select').addEventListener('change', function() {
+        const otherInput = document.getElementById('community_other');
+        if (this.value === 'Other') {
+            otherInput.style.display = 'block';
+            otherInput.required = true;
+        } else {
+            otherInput.style.display = 'none';
+            otherInput.required = false;
+            otherInput.value = '';
         }
     });
 </script>

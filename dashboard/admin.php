@@ -12,8 +12,8 @@ $totalStudents = $conn->query("SELECT COUNT(*) as count FROM students")->fetch_a
 $totalUsers = $conn->query("SELECT COUNT(*) as count FROM users")->fetch_assoc()['count'];
 $totalPayments = $conn->query("SELECT SUM(paid_amount) as total FROM payments WHERE payment_status = 'Paid'")->fetch_assoc()['total'] ?? 0;
 $pendingPayments = $conn->query("SELECT SUM(total_fee - paid_amount) as total FROM payments WHERE payment_status = 'Pending'")->fetch_assoc()['total'] ?? 0;
-$totalApproved = $conn->query("SELECT COUNT(*) as count FROM students WHERE course_department IS NOT NULL")->fetch_assoc()['count'];
-$totalPending = $totalStudents - $totalApproved;
+$totalApproved = $conn->query("SELECT COUNT(*) as count FROM students WHERE application_status = 'Confirmed'")->fetch_assoc()['count'];
+$totalPending = $conn->query("SELECT COUNT(*) as count FROM students WHERE application_status = 'Enquiry'")->fetch_assoc()['count'];
 
 // Get data for Department Chart
 $departmentData = $conn->query("
@@ -688,7 +688,7 @@ $collectionRate = ($totalFees > 0) ? round(($totalPayments / $totalFees) * 100, 
     const approvalStatusChart = new Chart(approvalStatusCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Approved', 'Pending'],
+            labels: ['Confirmed', 'Enquiry'],
             datasets: [{
                 data: [<?php echo $totalApproved; ?>, <?php echo $totalPending; ?>],
                 backgroundColor: [
